@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+  {{ super() }}
+  <style type="text/css">
+    .important { color: #336699; }
+  </style>
+{% endblock %}
+{% block content %}
+  <h1>Search</h1>
+  <p class="important">db</p>
+  <form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <table>
+        <tr>
+          <th>{{ form.word.label }}</th>
+          <th>{{ form.word(size=40) }}</th>
+        </tr>
+        <tr>
+          <th>{{ form.gloss.label }}</th>
+          <th>{{ form.gloss(size=40) }}</th>
+        </tr>
+      </table>
+    <p> {{ form.submit }}</p>
+  </form>
+{% endblock %}
