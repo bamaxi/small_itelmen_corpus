@@ -19,7 +19,7 @@ from app import db
 class Text(db.Model):
     __tablename__ = 'texts'
     text_id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(300), default='')
+    title = db.Column(db.String(300), default='Неизвестный текст')
     author = db.Column(db.String(100), default='Автор неизвестен')
     # author_id = db.Column(db.Integer, db.ForeignKey('Author.author_id'),
     #                       nullable=False)
@@ -27,9 +27,11 @@ class Text(db.Model):
     # many-to-one тексты к автору
     # author_obj = relationship('Author', back_populates='texts')
 
+
+
     # date = db.Column()
     # one-to-many: текст ко многим абзацам
-    paragraphs = relationship('Paragraph', #order_by=Paragraph.paragraph_id,
+    paragraphs = relationship('Paragraph', order_by='Paragraph.paragraph_id',
                               back_populates='text')
 
     def __repr__(self):
@@ -46,7 +48,7 @@ class Paragraph(db.Model):
     text = relationship('Text', back_populates='paragraphs')
 
     # one-to-many Абзац к предложениям
-    phrases = relationship('Phrase', #order_by=Phrase.phrase_id,
+    phrases = relationship('Phrase', order_by='Phrase.phrase_id',
                            back_populates='paragraph')
 
     # order - каким-то образом порядок?
@@ -66,7 +68,7 @@ class Phrase(db.Model):
     paragraph = relationship('Paragraph', back_populates='phrases')
 
     # one-to-many предложения к словам
-    words = relationship('Word', #order_by=Phrase.phrase_id,
+    words = relationship('Word', order_by='Phrase.phrase_id',
                          back_populates='phrase')
 
     # order - каким-то образом порядок?
@@ -81,20 +83,57 @@ class Phrase(db.Model):
 # TODO: add parent - previous word and desc - next word
 # TODO: add lineage - word order (for each?) or for sentences actually?
 class Word(db.Model):
+    '''
+    одно слово - форма (text), часть речи (pos), перевод (transl)
+
+    '''
     __tablename__ = 'words'
     word_id = db.Column(db.Integer, primary_key=True)
     phrase_id = db.Column(db.Integer, db.ForeignKey('phrases.phrase_id'),
                              nullable=False)
-    # order - каким-то образом порядок? А нужно ли именно здесь?
-    text = db.Column(db.String(60), nullable=False)
-    gloss = db.Column(db.String(60), nullable=False)
-
     # many-to-one предложения к абазцу
     phrase = relationship('Phrase', back_populates='words')
+
+    # order - каким-то образом порядок? А нужно ли именно здесь?
+    text = db.Column(db.String(60), nullable=False)
+    # везде было nullable=False
+    gloss = db.Column(db.String(60))
+    pos = db.Column(db.String(20))
+    transl = db.Column(db.String(60))
+
+    # one-to-many к морфам
+    morphs = relationship('Morph', order_by='Morph.morph_id', back_populates='word')
 
     def __repr__(self):
         return '<Word {} (gloss={}, phrase_id={}, word_id={})>'.format(
             self.text, self.gloss, self.phrase_id, self.word_id)
+
+
+class Morph(db.Model):
+    '''
+    морфы
+    type - префикс/основа/суффикс
+    '''
+    __tablename__ = 'morphs'
+    morph_id = db.Column(db.Integer, primary_key=True)
+    word_id = db.Column(db.Integer, db.ForeignKey('words.word_id'),
+                          nullable=False)
+    # many-to-one морфы к слову
+    word = relationship('Word', back_populates='morphs')
+
+    text = db.Column(db.String(60), nullable=False)
+    base_form = db.Column(db.String(60), nullable=False)
+    type = db.Column(db.String(60), nullable=False)
+    gloss = db.Column(db.String(60), nullable=False)
+    pos = db.Column(db.String(20), nullable=False)
+    # order - каким-то образом порядок? А нужно ли именно здесь?
+
+    def __repr__(self):
+        return '<Morph {} (gloss={}, base_form={}, type={}, pos={}, word_id={})>'.format(
+            self.text, self.gloss, self.base_form, self.type, self.pos, self.word_id)
+
+
+
 
 # class Author(db.Model):
 #     __tablename__ = 'authors'
@@ -109,13 +148,6 @@ class Word(db.Model):
 #         return '<Author {} (author_id={})>'.format(
 #             self.name, self.author_id)
 #
-
-
-
-
-
-
-
 
 
 class User(db.Model):
