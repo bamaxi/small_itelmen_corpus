@@ -3,6 +3,7 @@ import os
 from flask import Flask, g, render_template, request, current_app
 from config import Config
 from markupsafe import escape
+from werkzeug.debug import DebuggedApplication
 
 # база данных
 from flask_sqlalchemy import SQLAlchemy
@@ -46,6 +47,9 @@ def create_app(test_config=None):
 
 
     secret_key = app.config['SECRET_KEY']
+
+    if app.debug:
+        app.wsgi_app = DebuggedApplication(app.wsgi_app, evalex=True)
 
     @app.route('/')
     def index():
