@@ -32,6 +32,7 @@ def upload():
 
         path = os.path.join(UPLOAD_DIR, filename)
         if not os.path.exists(UPLOAD_DIR):
+            print(f'creating path at {UPLOAD_DIR}')
             os.mkdir(UPLOAD_DIR)
 
         f.save(path)
