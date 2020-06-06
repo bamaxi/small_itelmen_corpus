@@ -4,9 +4,43 @@
   {{ super() }}
   <style type="text/css">
     .important { color: #336699; }
+    .tableSentence {
+        border: 0px solid;
+        display: inline-table;
+        list-style: none;
+    }
   </style>
 {% endblock %}
 {% block content %}
   <h1>Search</h1>
   <p class="important">Here the results are shown</p>
+  <p class="count">There are <b>{{count}}</b> results in <b>{{docs_count}}</b> documents</p>
+  {% if count != 0 %}
+    {% for text_id, text in res|dictsort %}
+      <!--text is a dict-->
+      <p>{{ text['title']|e }} <i>{{ text['author']|e }}</i> </p>
+      {% for phrase_id, phrases in text['phrases']|dictsort %}
+        <!-- phrase_text is also a dict-->
+        <table>
+          <tr>
+          {% for phrase_text in phrases %}
+            {% for word in phrase_text['words'] %}
+              <!-- Single list is a "column" -->
+              <ul class="tableSentence">
+                <li>{{ word['word']|e }}</li>
+                <li>{{ word['dash']|e }}</li>
+                <li>{{ word['gloss']|e }}</li>
+                <li>{{ word['rus_lexeme']|e }}</li>
+              </ul>
+            {% endfor %}
+            </tr>
+            </table>
+            <p>Translation: {{ phrase_text['transl']|e }} </p>
+          {% endfor %}
+          <br>
+      {% endfor %}
+
+    {% endfor %}
+
+  {% endif %}
 {% endblock %}

@@ -14,7 +14,7 @@ from app import db
 #     return SQLAlchemy(app)
 
 
-
+# весь
 
 class Text(db.Model):
     __tablename__ = 'texts'
@@ -26,8 +26,6 @@ class Text(db.Model):
 
     # many-to-one тексты к автору
     # author_obj = relationship('Author', back_populates='texts')
-
-
 
     # date = db.Column()
     # one-to-many: текст ко многим абзацам
@@ -63,21 +61,29 @@ class Phrase(db.Model):
     phrase_id = db.Column(db.Integer, primary_key=True)
     paragraph_id = db.Column(db.Integer, db.ForeignKey('paragraphs.paragraph_id'),
                         nullable=False)
+    transl = db.Column(db.String(200))
 
     # many-to-one предложения к абазцу
     paragraph = relationship('Paragraph', back_populates='phrases')
 
     # one-to-many предложения к словам
-    words = relationship('Word', order_by='Word.phrase_id',
+    words = relationship('Word', order_by='Word.word_id',
                          back_populates='phrase')
 
     # order - каким-то образом порядок?
     # span - left + right с id?
+
+    def get_phrase_with_word_glosses(self, include_base_form=False):
+        phrase = {'transl': self.transl}
+        words = [word.get_word_with_glosses(
+                    include_base_form=include_base_form)
+                 for word in self.words]
+        phrase['words'] = words
+        return phrase
+
     def __repr__(self):
         return '<Phrase {} (paragraph_id={})>'.format(
             self.phrase_id, self.paragraph_id)
-
-
 
 #https://web.archive.org/web/20150909165001/http://www.ferdychristant.com/blog//articles/DOMM-7QJPM7
 # TODO: add parent - previous word and desc - next word
@@ -104,7 +110,51 @@ class Word(db.Model):
     # one-to-many к морфам
     morphs = relationship('Morph', order_by='Morph.morph_id', back_populates='word')
 
-    # def get_word_with_glosses(self):
+    def get_word_with_glosses(self, include_base_form=False):
+        full_word = {'word': self.text, 'rus_lexeme': '',
+                     'itl_lexeme': '',
+                     'dash': '', 'gloss': '', 'base': ''}
+
+        for morph in self.morphs:
+            # выбрать лексему (русский)
+            # TODO: ещё глоссируют 'bound stem' иногда
+            full_word['rus_lexeme'] = self.transl
+            if morph.type == 'stem':
+                full_word['itl_lexeme'] = morph.base_form
+            full_word['dash'] += morph.text
+            # TODO: добавить глоссу через дефис к колонкам Word, чтобы лучше искать глоссы
+            # хотя все равно не спасает..
+            try:
+                full_word['gloss'] += morph.gloss + '-'
+                if include_base_form==True:
+                    full_word['base'] += morph.base_form + '|'
+            except TypeError:
+                # something is None and we're concatenating None + str
+                continue
+
+        full_word['gloss'] = full_word['gloss'].rstrip('-')
+        full_word['base'] = full_word['base'].rstrip('|')
+        return full_word
+
+    # функция снизу вверх, а потом сверху вниз. По морфу получить словарь, где верхний уровень - текст
+    def get_text_by_word(self, include_base_form=False):
+        text_by_word = {}
+        text = self.phrase.paragraph.text
+
+        # два уровня вложенности, чтобы быстро проверять совпадения
+        # верхний уровень - id текста, ниже словарь с информацией о тексте и вложенным
+        # словарём фраз=предложений (параграфы не используются)
+        text_by_word[text.text_id] = {'author': text.author, 'title': text.title,
+                                      'phrases': {}}
+
+        phrase = self.phrase
+        # похожим образом здесь ключ phrase_id, дальше их список
+        phrases_list = []
+        text_by_word[text.text_id]['phrases'][phrase.phrase_id] = phrases_list
+        phrases_list.append(phrase.get_phrase_with_word_glosses(
+            include_base_form=include_base_form))
+
+        return text_by_word
 
     def __repr__(self):
         return '<Word {} (gloss={}, phrase_id={}, word_id={})>'.format(
@@ -131,11 +181,14 @@ class Morph(db.Model):
     pos = db.Column(db.String(20))
     # order - каким-то образом порядок? А нужно ли именно здесь?
 
+    # функция снизу вверх, а потом сверху вниз. По морфу получить словарь, где верхний уровень - текст
+    def get_text_by_morph(self):
+        text_by_morph = self.word.get_text_by_word()
+        return text_by_morph
+
     def __repr__(self):
         return '<Morph {} (gloss={}, base_form={}, type={}, pos={}, word_id={})>'.format(
             self.text, self.gloss, self.base_form, self.type, self.pos, self.word_id)
-
-
 
 
 # class Author(db.Model):
@@ -150,7 +203,6 @@ class Morph(db.Model):
 #     def __repr__(self):
 #         return '<Author {} (author_id={})>'.format(
 #             self.name, self.author_id)
-#
 
 
 class User(db.Model):
@@ -161,13 +213,3 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User %r>' % self.username
-
-# class Post(db.Model):
-#     __tablename__ = 'post'
-#     id = db.Column(db.Integer, primary_key=True)
-#     body = db.Column(db.String(140))
-#     timestamp = db.Column(db.Integer, index=True, default=0)
-#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-#
-#     def __repr__(self):
-#         return '<Post {}>'.format(self.body)

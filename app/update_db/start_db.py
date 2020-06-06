@@ -7,8 +7,9 @@ from app import db
 
 BASE_FILE = 'big_test.xml'
 
-def add_starting_data(base_file):
-    starting_data = parse_xml(base_file)
+
+def add_data(base_file):
+    data = parse_xml(base_file)
 
     engine = db.session.get_bind()
     session_factory = sessionmaker(bind=engine)
@@ -16,7 +17,7 @@ def add_starting_data(base_file):
 
     session = Session()
 
-    for title, actual_paragraphs in starting_data.items():
+    for title, actual_paragraphs in data.items():
         new_text = Text(title=title)
 
         # при создании я связывал объекты, так что, у более высокого в иерархии
@@ -27,13 +28,15 @@ def add_starting_data(base_file):
         paragraphs_to_add = new_text.paragraphs
         for actual_paragraph in actual_paragraphs:
             new_par = Paragraph()
-
+            # print('par', actual_paragraph)
             # теперь добавим всё нужное в параграф
             phrases_to_add = new_par.phrases
             for actual_phrase in actual_paragraph:
-                new_phrase = Phrase()
-
                 # print('phr', actual_phrase)
+                transl= actual_phrase['transl']
+                new_phrase = Phrase(transl=transl)
+
+                actual_phrase = actual_phrase['words_with_morphs']
 
                 # добавим слова в фразу
                 words_to_add = new_phrase.words
@@ -57,5 +60,5 @@ def add_starting_data(base_file):
     Session.remove()
 
 
-add_starting_data(BASE_FILE)
+# add_data(BASE_FILE)
 

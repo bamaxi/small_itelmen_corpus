@@ -13,12 +13,20 @@
     {{ form.hidden_tag() }}
     <table>
         <tr>
-          <th>{{ form.word.label }}</th>
-          <th>{{ form.word(size=40) }}</th>
+          <th>{{ form.word_form.label }}</th>
+          <th>{{ form.word_form(size=40) }}</th>
         </tr>
         <tr>
           <th>{{ form.gloss.label }}</th>
           <th>{{ form.gloss(size=40) }}</th>
+        </tr>
+        <tr>
+          <th>{{ form.rus_lexeme.label }}</th>
+          <th>{{ form.rus_lexeme(size=40) }}</th>
+        </tr>
+        <tr>
+          <th>{{ form.itl_lexeme.label }}</th>
+          <th>{{ form.itl_lexeme(size=40) }}</th>
         </tr>
       </table>
     <p> {{ form.submit }}</p>
