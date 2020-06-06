@@ -4,9 +4,9 @@ from flask import Flask, render_template
 from config import Config
 from werkzeug.debug import DebuggedApplication
 
-import jinja2_highlight
-import pygments
-from pygments import lexers
+# import jinja2_highlight
+# import pygments
+# from pygments import lexers
 
 # база данных
 from flask_sqlalchemy import SQLAlchemy
