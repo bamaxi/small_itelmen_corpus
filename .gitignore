@@ -2,4 +2,4 @@
 *.xml
 *.db
 __pycache__
-!static
+!static/
