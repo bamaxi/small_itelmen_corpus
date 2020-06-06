@@ -1,0 +1,4 @@
+.idea
+*.xml
+*.db
+__pycache__
