@@ -17,3 +17,6 @@ def add_data_from_file(file=BASE_FILE):
         if cont != 'y':
             return
     add_data(file)
+
+
+add_data_from_file()

@@ -63,7 +63,7 @@ def create_app(test_config=None):
     @app.route('/')
     def index():
         # return 'Hello, World!'
-        return render_template('index.html', secret_key=secret_key)
+        return render_template('index.html')
 
     return app
 
