@@ -65,6 +65,7 @@ def paragraphs_to_dict(paragraphs, take_first_paragraph=False):
 
 def parse_xml(filename, take_first_text=False, take_first_paragraph=False):
     res = {}
+    par_count = 0
 
     with open(filename, 'r', encoding='utf-8') as f:
         soup = BeautifulSoup(f, "lxml-xml")
@@ -78,7 +79,9 @@ def parse_xml(filename, take_first_text=False, take_first_paragraph=False):
         except AttributeError as e:
             title = 'Неизвестный текст'
         res[title] = paragraphs
+        par_count = len(paragraphs)
     else:
+
         for i, text in enumerate(texts):
             paragraphs = text.find_all('paragraph')
             try:
@@ -87,7 +90,9 @@ def parse_xml(filename, take_first_text=False, take_first_paragraph=False):
                 title = str(i)
             res[title] = paragraphs
 
-    print(f'take_first_text is {take_first_text}, total {len(paragraphs)} found')
+            par_count += len(paragraphs)
+
+    print(f'take_first_text is {take_first_text}, total {par_count} found')
 
     # print(list(res.keys()), len(texts))
     for title, paragraphs in res.items():

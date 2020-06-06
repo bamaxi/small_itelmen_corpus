@@ -8,6 +8,7 @@ BASE_FILE = 'xml_texts/text_1.xml'
 
 
 def add_data(base_file):
+    # TODO: check existence before adding
     data = parse_xml(base_file)
 
     engine = db.session.get_bind()

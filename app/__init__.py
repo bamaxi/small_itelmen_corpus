@@ -52,7 +52,7 @@ def create_app(test_config=None):
     # jinja_options.setdefault('extensions',
     #                          []).append('jinja2_highlight.HighlightExtension')
     # app.jinja_env.extend(jinja2_highlight_cssclass='codehilite')
-    app.jinja_env.add_extension("jinja2_highlight.HighlightExtension")
+    # app.jinja_env.add_extension("jinja2_highlight.HighlightExtension")
 
 
     secret_key = app.config['SECRET_KEY']

@@ -15,5 +15,4 @@ def add_data_from_file(file=BASE_FILE):
         cont = input('Adding base file, continue? (y/n)')
         if cont != 'y':
             return
-
     add_data(file)
