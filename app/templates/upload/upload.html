@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block title %}Upload{% endblock %}
+{% block head %}
+  {{ super() }}
+  <link rel="stylesheet"
+        href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.0.0/build/styles/default.min.css">
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.0.0/build/highlight.min.js"></script>
+
+  <style type="text/css">
+    .important { color: #336699; }
+    .code { width: 80%; }
+  </style>
+
+{% endblock %}
+{% block content %}
+  <h1>Upload</h1>
+  <p class="important">Here you can upload files. They will be added to the database</p>
+
+  <form method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    {{ form.text.label() }}
+    {{ form.text }}
+  </form>
+
+  <div class="code">
+  <pre>
+    <code class="xml">
+        {{ example_xml }}
+    </code>
+  </pre>
+  </div>
+
+{% endblock %}

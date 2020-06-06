@@ -1,9 +1,5 @@
-# from app import models
 from bs4 import BeautifulSoup
 
-MAIN_FILE = 'ITL_IPA_texts.xml'
-TEST_FILE = 'test.xml'
-BIG_TEST_FILE = 'big_test.xml'
 
 def phrases_to_dicts(phrases):
     '''
@@ -60,6 +56,7 @@ def phrases_to_dicts(phrases):
         # чтобы была правильная вложенность []
     return [{'transl': transl, 'words_with_morphs': words_with_morphs}]
 
+
 def paragraphs_to_dict(paragraphs, take_first_paragraph=False):
     if take_first_paragraph:
         paragraphs = paragraphs[0]
@@ -97,10 +94,3 @@ def parse_xml(filename, take_first_text=False, take_first_paragraph=False):
         res[title] = paragraphs_to_dict(paragraphs, take_first_paragraph=take_first_paragraph)
 
     return res
-
-# hooray = parse_xml(BIG_TEST_FILE, take_first_text=False)
-# for title, text_data in hooray.items():
-#     print(title)
-#     print(text_data[:3])
-#     print('-----------------')
-# print(len(hooray))

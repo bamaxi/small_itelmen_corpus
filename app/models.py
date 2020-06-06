@@ -1,20 +1,7 @@
 # https://flask-sqlalchemy.palletsprojects.com/en/2.x/quickstart/
-from datetime import datetime
-
-
-from flask import current_app, g
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from app import db
 
-# # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
-# # db = SQLAlchemy(app)
-#
-# def init_db(app):
-#     return SQLAlchemy(app)
-
-
-# весь
 
 class Text(db.Model):
     __tablename__ = 'texts'
@@ -197,7 +184,7 @@ class Morph(db.Model):
 #     name = db.Column(db.String(100))
 #
 #     # one-to-many автор к текстам
-#     texts = relationship('Text', #order_by=Text.text_id,
+#     texts = relationship('Text', order_by=Text.text_id,
 #                          back_populates='author')
 #
 #     def __repr__(self):
@@ -205,11 +192,11 @@ class Morph(db.Model):
 #             self.name, self.author_id)
 
 
-class User(db.Model):
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-
-    def __repr__(self):
-        return '<User %r>' % self.username
+# class User(db.Model):
+#     __tablename__ = 'users'
+#     id = db.Column(db.Integer, primary_key=True)
+#     username = db.Column(db.String(80), unique=True, nullable=False)
+#     email = db.Column(db.String(120), unique=True, nullable=False)
+#
+#     def __repr__(self):
+#         return '<User %r>' % self.username

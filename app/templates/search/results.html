@@ -15,15 +15,18 @@
   <h1>Search</h1>
   <p class="important">Here the results are shown</p>
   <p class="count">There are <b>{{count}}</b> results in <b>{{docs_count}}</b> documents</p>
+  <p><small>*a single result is a wordform with target parameters</small></p>
   {% if count != 0 %}
+  <div class="results">
     {% for text_id, text in res|dictsort %}
       <!--text is a dict-->
+      <div class="text-results">
       <p>{{ text['title']|e }} <i>{{ text['author']|e }}</i> </p>
       {% for phrase_id, phrases in text['phrases']|dictsort %}
         <!-- phrase_text is also a dict-->
-        <table>
-          <tr>
           {% for phrase_text in phrases %}
+            <div class="sentence-result">
+            <div class="glosses">
             {% for word in phrase_text['words'] %}
               <!-- Single list is a "column" -->
               <ul class="tableSentence">
@@ -33,14 +36,14 @@
                 <li>{{ word['rus_lexeme']|e }}</li>
               </ul>
             {% endfor %}
-            </tr>
-            </table>
-            <p>Translation: {{ phrase_text['transl']|e }} </p>
+            </div>
+              <p class="translation" >Translation: {{ phrase_text['transl']|e }} </p>
+            </div>
           {% endfor %}
           <br>
       {% endfor %}
-
+      </div>
     {% endfor %}
-
+  </div>
   {% endif %}
 {% endblock %}
