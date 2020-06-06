@@ -33,7 +33,7 @@ def add_starting_data(base_file):
             for actual_phrase in actual_paragraph:
                 new_phrase = Phrase()
 
-                print('phr', actual_phrase)
+                # print('phr', actual_phrase)
 
                 # добавим слова в фразу
                 words_to_add = new_phrase.words

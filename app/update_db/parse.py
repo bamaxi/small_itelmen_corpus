@@ -16,7 +16,9 @@ def phrases_to_dicts(phrases):
     :return:
     '''
     words_with_morphs = []
-    word_tags = phrases.word.words.find_all('word')
+    words = phrases.word.words.extract()
+    word_tags = words.find_all('word')
+    # word_tags = phrases.word.words.find_all('word')
     for word_tag in word_tags:
         word_dict = {'to_words': {}, 'to_morphs': []}
         word = word_tag
@@ -48,9 +50,13 @@ def phrases_to_dicts(phrases):
 
         words_with_morphs.append(word_dict)
         # print(words_with_morphs)
-
+    transl = ''
+    try:
+        transl = phrases.find('item', type='gls').string
+    except AttributeError:
+        pass
         # чтобы была правильная вложенность []
-    return [words_with_morphs]
+    return {'transl': transl, 'words_with_morphs': [words_with_morphs]}
 
 def paragraphs_to_dict(paragraphs, take_first_paragraph=False):
     if take_first_paragraph:
@@ -90,9 +96,9 @@ def parse_xml(filename, take_first_text=False, take_first_paragraph=False):
 
     return res
 
-# hooray = parse_xml(BIG_TEST_FILE, take_first_text=False)
-# for title, text_data in hooray.items():
-#     print(title)
-#     print(text_data[:3])
-#     print('-----------------')
-# print(len(hooray))
+hooray = parse_xml(BIG_TEST_FILE, take_first_text=False)
+for title, text_data in hooray.items():
+    print(title)
+    print(text_data[:3])
+    print('-----------------')
+print(len(hooray))

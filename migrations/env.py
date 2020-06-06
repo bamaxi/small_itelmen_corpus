@@ -83,9 +83,6 @@ def run_migrations_online():
             connection=connection,
             target_metadata=target_metadata,
             process_revision_directives=process_revision_directives,
-            # 06.06 добавил чтобы можно было менять колонки
-            render_as_batch=True,# include_schemas = True,
-            ################################################
             **current_app.extensions['migrate'].configure_args
         )
 

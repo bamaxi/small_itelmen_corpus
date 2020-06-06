@@ -68,7 +68,7 @@ class Phrase(db.Model):
     paragraph = relationship('Paragraph', back_populates='phrases')
 
     # one-to-many предложения к словам
-    words = relationship('Word', order_by='Phrase.phrase_id',
+    words = relationship('Word', order_by='Word.phrase_id',
                          back_populates='phrase')
 
     # order - каким-то образом порядок?
@@ -103,6 +103,8 @@ class Word(db.Model):
 
     # one-to-many к морфам
     morphs = relationship('Morph', order_by='Morph.morph_id', back_populates='word')
+
+    # def get_word_with_glosses(self):
 
     def __repr__(self):
         return '<Word {} (gloss={}, phrase_id={}, word_id={})>'.format(
