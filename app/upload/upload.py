@@ -23,6 +23,10 @@ def upload():
     form = UploadForm()
 
     if form.validate_on_submit():
+        if not os.path.exists(UPLOAD_DIR):
+            print(f'creating path at {UPLOAD_DIR}')
+            os.mkdir(UPLOAD_DIR)
+
         num_files = len(os.listdir(UPLOAD_DIR))
         f = form.text.data
         filename = str(num_files+1) + '_' + secure_filename(f.filename)
@@ -31,9 +35,6 @@ def upload():
             return redirect(request.url)
 
         path = os.path.join(UPLOAD_DIR, filename)
-        if not os.path.exists(UPLOAD_DIR):
-            print(f'creating path at {UPLOAD_DIR}')
-            os.mkdir(UPLOAD_DIR)
 
         f.save(path)
 
