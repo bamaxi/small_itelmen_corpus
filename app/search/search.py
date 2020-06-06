@@ -38,7 +38,8 @@ def search():
 @bp.route('/search/search_results', methods=['GET'])
 def search_results():
     # TODO: пример запроса на глоссу:
-    # q_3pl = db.session.query(Word).filter(Word.gloss.ilike(text(':_gloss'))).params(_gloss='%'+"3pl"+'%')
+    # gloss = 'SOME_GLOSS'
+    # q_3pl = db.session.query(Word).filter(Word.gloss.ilike(text(':_gloss'))).params(_gloss='%'+gloss.lower()+'%')
 
 
     return render_template('search/results.html')

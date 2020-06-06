@@ -45,6 +45,9 @@ def create_app(test_config=None):
     from app.search import bp as search_bp
     app.register_blueprint(search_bp)
 
+    from app.update_db import bp as update_db_bp
+    app.register_blueprint(update_db_bp)
+
 
     secret_key = app.config['SECRET_KEY']
 

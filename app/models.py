@@ -121,11 +121,12 @@ class Morph(db.Model):
     # many-to-one морфы к слову
     word = relationship('Word', back_populates='morphs')
 
+    ### везде было nullable=False
     text = db.Column(db.String(60), nullable=False)
-    base_form = db.Column(db.String(60), nullable=False)
-    type = db.Column(db.String(60), nullable=False)
-    gloss = db.Column(db.String(60), nullable=False)
-    pos = db.Column(db.String(20), nullable=False)
+    base_form = db.Column(db.String(60))
+    type = db.Column(db.String(60))
+    gloss = db.Column(db.String(60))
+    pos = db.Column(db.String(20))
     # order - каким-то образом порядок? А нужно ли именно здесь?
 
     def __repr__(self):
