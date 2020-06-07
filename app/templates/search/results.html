@@ -25,7 +25,7 @@
     {% for text_id, text in res|dictsort %}
       <!--text is a dict-->
       <div class="text-results">
-      <p>{{ text['title']|e }} <i>{{ text['author']|e }}</i> </p>
+      <p>{{loop.index}}. {{ text['title']|e }} <i>{{ text['author']|e }}</i> </p>
       {% for phrase_id, phrases in text['phrases']|dictsort %}
         <!-- phrase_text is also a dict-->
           {% for phrase_text in phrases %}
