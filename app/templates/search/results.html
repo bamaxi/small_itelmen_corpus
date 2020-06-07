@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block title %}Index{% endblock %}
+{% block title %}Результаты поиска{% endblock %}
 {% block head %}
   {{ super() }}
   <style type="text/css">
@@ -18,7 +18,7 @@
   <h1>Search</h1>
   <p class="important">Here the results are shown</p>
   <p class="count">There are <b>{{count}}</b> results in <b>{{docs_count}}</b> documents</p>
-<p class="corpus-count">In the corpus there are <b>{{total_words}}</b> words and <b>{{total_docs}}</b> documents</p>
+  <p class="corpus-count">In the corpus there are a total of <b>{{total_words}}</b> words in <b>{{total_docs}}</b> documents</p>
   <p><small>*a single result is a wordform with target parameters</small></p>
   {% if count != 0 %}
   <div class="results">

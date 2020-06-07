@@ -8,8 +8,13 @@ BASE_FILE = 'xml_texts/text_1.xml'
 
 
 def add_data(base_file):
-    # TODO: check existence before adding
+    # used to check existence before adding
+    unique_in_file = set()
+    count_unique = 0
+    count_total = 0
+
     data = parse_xml(base_file)
+    count_total = len(list(data.keys()))
 
     engine = db.session.get_bind()
     session_factory = sessionmaker(bind=engine)
@@ -18,13 +23,16 @@ def add_data(base_file):
     session = Session()
 
     for title, actual_paragraphs in data.items():
+        if Text.query.filter(Text.title == title).first() is not None:
+            # текст с таким заголовком уже есть
+            continue
+
+        unique_in_file.add(title)
         new_text = Text(title=title)
 
         # при создании я связывал объекты, так что, у более высокого в иерархии
         # есть список более низких
         # как только мы создаём инстанс класса, можно переходить вниз по иерархии
-
-        # text.paragraphs = []
         paragraphs_to_add = new_text.paragraphs
         for actual_paragraph in actual_paragraphs:
             new_par = Paragraph()
@@ -58,3 +66,6 @@ def add_data(base_file):
 
     session.commit()
     Session.remove()
+
+    count_unique = len(unique_in_file)
+    return count_unique, count_total, unique_in_file

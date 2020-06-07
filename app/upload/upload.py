@@ -37,18 +37,27 @@ def upload():
         path = os.path.join(UPLOAD_DIR, filename)
 
         f.save(path)
-
-        add_data(path)
-
         print(f'file {path} was successfully uploaded')
-        flash('your file was successfully uploaded')
-        return redirect(url_for('index'))
+
+        count_unique, count_total, unique_texts_in_file = add_data(path)
+        print(f'file {path} was parsed. '
+              f'Unique (new) texts {count_unique}, total texts {count_total} '
+              f'unique texts are {unique_texts_in_file}')
+
+        message = f'We were able to parse {count_total} texts.\n'
+        if count_unique == 0:
+            message += f'Unfortunately, all texts with these titles were already in the corpus.'
+        else:
+            message += f'Of these {count_unique} were not present in the corpus. Thank you!'
+
+        flash('Thank you! Your file was successfully uploaded.\n' + message)
+        return redirect(url_for('main.index'))
 
     example_xml_path = 'app/static/example.xml'
     with open(example_xml_path, 'r', encoding='utf-8') as f:
         example_xml = f.read()
 
-    # было:
+    # было в шаблоне:
     # { % highlight 'XmlLexer' %}
     # {{example_xml}}
     # { % endhighlight %}

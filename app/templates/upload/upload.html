@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block title %}Upload{% endblock %}
+{% block title %}Загрузка{% endblock %}
 {% block head %}
   {{ super() }}
   <link rel="stylesheet"
@@ -23,6 +23,7 @@
     <p>{{ form.submit }}</p>
   </form>
 
+  <p>Внизу представлен короткий образец .xml файла. Пока информацию можно извлечь только из файлов с такой структурой.</p>
   <div class="code">
   <pre>
     <code class="xml">

@@ -48,23 +48,29 @@ def create_app(test_config=None):
     from app.upload import bp as upload_bp
     app.register_blueprint(upload_bp)
 
+    # blueprint для ошибок
+    from app.errors import bp as errors_bp
+    app.register_blueprint(errors_bp)
+
+    # blueprint для главной страницы
+    from app.main import bp as main_bp
+    app.register_blueprint(main_bp)
+
     # jinja_options = dict(Flask.jinja_options)
     # jinja_options.setdefault('extensions',
     #                          []).append('jinja2_highlight.HighlightExtension')
     # app.jinja_env.extend(jinja2_highlight_cssclass='codehilite')
     # app.jinja_env.add_extension("jinja2_highlight.HighlightExtension")
 
-
     secret_key = app.config['SECRET_KEY']
 
     if app.debug:
         app.wsgi_app = DebuggedApplication(app.wsgi_app, evalex=True)
 
-    @app.route('/')
-    def index():
-        # return 'Hello, World!'
-        return render_template('index.html')
-
+    # @app.route('/')
+    # def index():
+    #     # return 'Hello, World!'
+    #     return render_template('index.html')
     return app
 
 
