@@ -3,12 +3,17 @@ from flask import current_app, render_template, redirect, \
     url_for, request
 from flask.json import dumps, loads
 from app import db
-from app.models import Word, Morph
+from app.models import Text, Word, Morph
 
 from sqlalchemy import text, and_
 
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
+
+
+def get_total_for_corpus():
+    return {'total_words': len(Word.query.all()),
+            'total_docs': len(Text.query.all())}
 
 
 def do_search(include_base_form=True, **search_params):
@@ -64,7 +69,7 @@ def do_search(include_base_form=True, **search_params):
 
         res = texts_for_words[0]
     except IndexError:
-        return count, {}
+        return 0, 0, {}
 
     for text_dict in texts_for_words:
         # проверим, что текста с таким id ещё нет в словаре текстов
@@ -124,13 +129,11 @@ def search():
 @bp.route('/search/search_results', methods=['GET'])
 def search_results():
     query = request.args['query']
-    print(type(query), 'query:', query)
     query = loads(query)
     print(type(query), 'query:', query)
     count, docs_count, res = do_search(**query)
 
-    print(count)
-    print(docs_count)
-    print(res)
+    total = get_total_for_corpus()
     return render_template('search/results.html',
-                           count=count, docs_count=docs_count, res=res)
+                           count=count, docs_count=docs_count, res=res,
+                           **total)

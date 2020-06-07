@@ -40,7 +40,8 @@ def upload():
 
         add_data(path)
 
-        print(f'file {path} was succesfully uploaded')
+        print(f'file {path} was successfully uploaded')
+        flash('your file was successfully uploaded')
         return redirect(url_for('index'))
 
     example_xml_path = 'app/static/example.xml'
