@@ -11,6 +11,8 @@ from werkzeug.debug import DebuggedApplication
 # база данных
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_bootstrap import Bootstrap
+
 db = SQLAlchemy()
 migrate = Migrate()
 
@@ -35,6 +37,9 @@ def create_app(test_config=None):
     # инициализация базы данных
     db.init_app(app)
     migrate.init_app(app, db)
+
+    # инициализация бутстрапа
+    Bootstrap(app)
 
     # blueprint для поиска
     from app.search import bp as search_bp

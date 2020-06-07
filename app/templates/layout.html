@@ -1,29 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    {% block head %}
-    <meta charset="UTF-8">
-<!--    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">-->
-    <title>{% block title %}{% endblock %} - FieldworkCrowdsource</title>
-    {% endblock %}
-    <style type="text/css">
-        #content {width: 1000px}
-    </style>
-</head>
-<body>
-    <hr>
+{% extends "bootstrap/base.html" %}
+
+{% block title %}
+    {% if title %} {{ title }} - ItelCorpus{% else %}Welcome to ItelCrowdSourceCorpus{% endif %}
+{% endblock %}
+
+{% block navbar %}
+    <nav class="navbar fixed-top navbar-default">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Навигация</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="{{ url_for('main.index') }}">ItelCorpus</a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li><a href="{{ url_for('main.index') }}">Главная</a></li>
+                    <li><a href="{{ url_for('search.search') }}">Поиск</a></li>
+                    <li><a href="{{ url_for('upload.upload') }}">Добавить текст</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
-            <ul>
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
+            {% for message in messages %}
+                <div class="alert alert-info" role="alert">{{ message }}</div>
+            {% endfor %}
         {% endif %}
         {% endwith %}
-    <div id="content">
-        {% block content %}
-        {% endblock %}</div>
-    <div id="footer">{% block footer %}{% endblock %}</div>
-</body>
-</html>
+
+        {# application content needs to be provided in the app_content block #}
+        {% block app_content %}{% endblock %}
+    </div>
+
+
+    {% block footer %}
+        <footer class="navbar fixed-bottom navbar-default">
+          <div class="container-fluid text-center text-md-left">
+            <div class="row">
+                <div class="col-md-3 pt-0-10">
+                    <p>Вдохновение - корпус <a href="http://chuklang.ru">CHUKLANG</a></p>
+                </div>
+            </div>
+          </div>
+        </footer>
+    {% endblock %}
+
+{% endblock %}

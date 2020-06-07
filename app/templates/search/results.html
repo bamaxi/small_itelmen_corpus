@@ -12,43 +12,53 @@
     .translation { display: inline-table;
                    list-style: none
     }
+    .sentence-result { border-style: dotted;
+                       border-radius: 25px;
+                       border-color:  rgb(254, 245, 231); }
   </style>
 {% endblock %}
-{% block content %}
+
+{% block app_content %}
   <h1>Search</h1>
-  <p class="important">Here the results are shown</p>
-  <p class="count">There are <b>{{count}}</b> results in <b>{{docs_count}}</b> documents</p>
-  <p class="corpus-count">In the corpus there are a total of <b>{{total_words}}</b> words in <b>{{total_docs}}</b> documents</p>
-  <p><small>*a single result is a wordform with target parameters</small></p>
+  <p class="important">Здесь представлены результаты поиска</p>
+  <p class="count">Найдено <b>{{count}}</b> вхождений в <b>{{docs_count}}</b> документах</p>
+  <p class="corpus-count">Всего в корпусе <b>{{total_words}}</b> слов в <b>{{total_docs}}</b> документах</p>
+  <p><small>*одно вхождение это словоформа с указанными параметрами</small></p>
   {% if count != 0 %}
-  <div class="results">
-    {% for text_id, text in res|dictsort %}
-      <!--text is a dict-->
-      <div class="text-results">
-      <p>{{loop.index}}. {{ text['title']|e }} <i>{{ text['author']|e }}</i> </p>
-      {% for phrase_id, phrases in text['phrases']|dictsort %}
-        <!-- phrase_text is also a dict-->
-          {% for phrase_text in phrases %}
-            <div class="sentence-result">
-            <div class="glosses">
-            {% for word in phrase_text['words'] %}
-              <!-- Single list is a "column" -->
-              <ul class="tableSentence">
-                <li>{{ word['word']|e }}</li>
-                <li>{{ word['dash']|e }}</li>
-                <li>{{ word['gloss']|e }}</li>
-                <li>{{ word['rus_lexeme']|e }}</li>
-              </ul>
+  <div class="row">
+    <div class="col-md-7">
+        <div class="results">
+            {% for text_id, text in res|dictsort %}
+              <!--text is a dict-->
+              <div class="text-results">
+                <p><h3>{{loop.index}}. {{ text['title']|e }} <small class="text-muted">{{ text['author']|e }}</small></h3></p>
+                {% for phrase_id, phrases in text['phrases']|dictsort %}
+                  <!-- phrase_text is also a dict-->
+                    {% for phrase_text in phrases %}
+                      <div class="sentence-result">
+                      <div class="glosses">
+                      {% for word in phrase_text['words'] %}
+                        <!-- Single list is a "column" -->
+                        <ul class="tableSentence">
+                          <li>{{ word['word']|e }}</li>
+                          <li>{{ word['dash']|e }}</li>
+                          <li>{{ word['gloss']|e }}</li>
+                          <li>{{ word['rus_lexeme']|e }}</li>
+                        </ul>
+                      {% endfor %}
+                      </div>
+                        <ul class="translation" >
+                          <li><i>{{ phrase_text['transl']|e }}</i></li> </ul>
+                      </div>
+                    {% endfor %}
+                    <br>
+                {% endfor %}
+              </div>
             {% endfor %}
-            </div>
-              <ul class="translation" >
-                <li><i>{{ phrase_text['transl']|e }}</i></li> </ul>
-            </div>
-          {% endfor %}
-          <br>
-      {% endfor %}
-      </div>
-    {% endfor %}
+        </div>
+    </div>
   </div>
+  <br>
+
   {% endif %}
 {% endblock %}

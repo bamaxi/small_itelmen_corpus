@@ -6,8 +6,11 @@
     .important { color: #336699; }
   </style>
 {% endblock %}
-{% block content %}
-  <h1>Index</h1>
-  <p class="important">
-    Welcome on my FieldworkCrowdsource homepage.
+{% block app_content %}
+  <h1>"Корпус" ительменского языка</h1>
+  <p class="important">Добро пожаловать на главную страницу корпуса.</p>
+  <p>Вы можете выполнить поиск по корпусу:
+    <a href="{{ url_for('search.search') }}">поиск</a></p>
+  <p>Или можете добавить свой собственный текст:
+    <a href="{{ url_for('upload.upload') }}">добавление текста</a></p>
 {% endblock %}

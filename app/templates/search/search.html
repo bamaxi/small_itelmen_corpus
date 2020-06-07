@@ -1,34 +1,38 @@
 {% extends "layout.html" %}
-{% block title %}Index{% endblock %}
-{% block head %}
-  {{ super() }}
-  <style type="text/css">
-    .important { color: #336699; }
-  </style>
-{% endblock %}
-{% block content %}
-  <h1>Search</h1>
-  <p class="important">db</p>
-  <form action="" method="post" novalidate>
-    {{ form.hidden_tag() }}
-    <table>
-        <tr>
-          <th>{{ form.word_form.label }}</th>
-          <th>{{ form.word_form(size=40) }}</th>
-        </tr>
-        <tr>
-          <th>{{ form.gloss.label }}</th>
-          <th>{{ form.gloss(size=40) }}</th>
-        </tr>
-        <tr>
-          <th>{{ form.rus_lexeme.label }}</th>
-          <th>{{ form.rus_lexeme(size=40) }}</th>
-        </tr>
-        <tr>
-          <th>{{ form.itl_lexeme.label }}</th>
-          <th>{{ form.itl_lexeme(size=40) }}</th>
-        </tr>
-      </table>
-    <p> {{ form.submit }}</p>
-  </form>
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block title %}Поиск по корпусу{% endblock %}
+
+{% block app_content %}
+  <h1>Поиск по корпусу</h1>
+
+  <div class="row">
+      <div class="col-md-4">
+          {{ wtf.quick_form(form)  }}
+<!--  <form action="" method="post" novalidate>-->
+<!--    {{ form.hidden_tag() }}-->
+<!--    <table>-->
+<!--        <tr>-->
+<!--          <th>{{ form.word_form.label }}</th>-->
+<!--          <th>{{ form.word_form(size=40) }}</th>-->
+<!--        </tr>-->
+<!--        <tr>-->
+<!--          <th>{{ form.gloss.label }}</th>-->
+<!--          <th>{{ form.gloss(size=40) }}</th>-->
+<!--        </tr>-->
+<!--        <tr>-->
+<!--          <th>{{ form.rus_lexeme.label }}</th>-->
+<!--          <th>{{ form.rus_lexeme(size=40) }}</th>-->
+<!--        </tr>-->
+<!--        <tr>-->
+<!--          <th>{{ form.itl_lexeme.label }}</th>-->
+<!--          <th>{{ form.itl_lexeme(size=40) }}</th>-->
+<!--        </tr>-->
+<!--      </table>-->
+<!--    <p> {{ form.submit }}</p>-->
+<!--  </form>-->
+    </div>
+  </div>
+  <br>
+
 {% endblock %}

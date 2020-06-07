@@ -6,7 +6,7 @@ import os
 
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
-from wtforms import SubmitField, validators
+from wtforms import SubmitField
 from werkzeug.utils import secure_filename
 
 UPLOAD_DIR = 'app/upload_data/'
@@ -14,7 +14,7 @@ ALLOWED_EXTENSIONS = {'xml'}
 
 
 class UploadForm(FlaskForm):
-    text = FileField('файл', validators=[FileRequired()])
+    text = FileField('Файл с размеченными текстами:', validators=[FileRequired()])
     submit = SubmitField('Загрузить')
 
 
@@ -44,13 +44,13 @@ def upload():
               f'Unique (new) texts {count_unique}, total texts {count_total} '
               f'unique texts are {unique_texts_in_file}')
 
-        message = f'We were able to parse {count_total} texts.\n'
+        message = f'Нам удалось обработать {count_total} текстов.\n'
         if count_unique == 0:
-            message += f'Unfortunately, all texts with these titles were already in the corpus.'
+            message += f'К сожалению, все тексты с такими заголовками уже представлены в корпусе.'
         else:
-            message += f'Of these {count_unique} were not present in the corpus. Thank you!'
+            message += f'Из них {count_unique} с такими заголовками не было в корпусе. Спасибо!'
 
-        flash('Thank you! Your file was successfully uploaded.\n' + message)
+        flash('Спасибо! Ваш файл успешно загружен.\n' + message)
         return redirect(url_for('main.index'))
 
     example_xml_path = 'app/static/example.xml'

@@ -52,7 +52,7 @@ def phrases_to_dicts(phrases):
     except AttributeError:
         pass
     if transl is None:
-        transl = '?'
+        transl = '(перевода нет)'
         # чтобы была правильная вложенность []
     return [{'transl': transl, 'words_with_morphs': words_with_morphs}]
 

@@ -1,28 +1,36 @@
 {% extends "layout.html" %}
-{% block title %}Загрузка{% endblock %}
-{% block head %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block title %}Загрузить тексты{% endblock %}
+
+{% block styles %}
   {{ super() }}
   <link rel="stylesheet"
-        href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.0.0/build/styles/default.min.css">
-  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.0.0/build/highlight.min.js"></script>
-
+        href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/styles/default.min.css">
   <style type="text/css">
     .important { color: #336699; }
     .code { width: 80%; }
   </style>
-
 {% endblock %}
-{% block content %}
-  <h1>Upload</h1>
-  <p class="important">Here you can upload files. They will be added to the database</p>
 
-  <form method="POST" enctype="multipart/form-data">
-    {{ form.hidden_tag() }}
-    {{ form.text.label() }}
-    {{ form.text }}
-    <p>{{ form.submit }}</p>
-  </form>
 
+{% block app_content %}
+  <h1>Загрузка текстов</h1>
+  <p class="important">Здесь вы можете загрузить размеченные тексты. Они будут добавлены в базу данных. Ниже приведён образец файла.</p>
+
+  <div class="row">
+    <div class="col-md-4">
+      {{ wtf.quick_form(form) }}
+    </div>
+  </div>
+
+<!--  <form method="POST" enctype="multipart/form-data">-->
+<!--    {{ form.hidden_tag() }}-->
+<!--    {{ form.text.label() }}-->
+<!--    {{ form.text }}-->
+<!--    <p>{{ form.submit }}</p>-->
+<!--  </form>-->
+  <br>
   <p>Внизу представлен короткий образец .xml файла. Пока информацию можно извлечь только из файлов с такой структурой.</p>
   <div class="code">
   <pre>
@@ -32,4 +40,8 @@
   </pre>
   </div>
 
+  {% block scripts %}
+    {{ super() }}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/highlight.min.js"></script>
+  {% endblock %}
 {% endblock %}
