@@ -63,6 +63,7 @@ def paragraphs_to_dict(paragraphs, take_first_paragraph=False):
     return [phrases_to_dicts(paragraph.phrases)
                 for paragraph in paragraphs]
 
+
 def parse_xml(filename, take_first_text=False, take_first_paragraph=False):
     res = {}
     par_count = 0
@@ -71,7 +72,11 @@ def parse_xml(filename, take_first_text=False, take_first_paragraph=False):
         soup = BeautifulSoup(f, "lxml-xml")
 
     texts = soup.find_all('interlinear-text')
-    print(len(texts))
+    total_texts = len(texts)
+    print(f"texts by <interlinear-text>: {total_texts}")
+    if total_texts==0:
+        print(f"soup is:\n {soup.prettify()}")
+
     if take_first_text==True:
         paragraphs = texts[0].find_all('paragraph')
         try:
@@ -81,7 +86,6 @@ def parse_xml(filename, take_first_text=False, take_first_paragraph=False):
         res[title] = paragraphs
         par_count = len(paragraphs)
     else:
-
         for i, text in enumerate(texts):
             paragraphs = text.find_all('paragraph')
             try:

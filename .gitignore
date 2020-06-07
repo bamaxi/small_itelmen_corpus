@@ -1,5 +1,5 @@
 .idea
-*.xml
 *.db
 __pycache__
+upload_data
 !static/
