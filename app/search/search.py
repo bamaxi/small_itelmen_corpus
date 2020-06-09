@@ -123,7 +123,8 @@ def search():
             "itl_lexeme": form.itl_lexeme.data}
         return redirect(url_for('.search_results', query=dumps(form_input)))
 
-    return render_template('search/search.html', form=form)
+    total = get_total_for_corpus()
+    return render_template('search/search.html', form=form, **total)
 
 
 @bp.route('/search/search_results', methods=['GET'])
