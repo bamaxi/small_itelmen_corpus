@@ -14,10 +14,12 @@ ALLOWED_EXTENSIONS = {'xml'}
 
 
 class UploadForm(FlaskForm):
-    text = FileField('Файл с размеченными текстами:', validators=[FileRequired()])
+    text = FileField('Выберите файл:', validators=[FileRequired()])
     submit = SubmitField('Загрузить')
 
 
+# TODO: сейчас после загрузки пользователь должен ждать, пока файл распарсится и добавится в таблицу.
+# TODO: ...это надо делать асинхронно, например, через *Celery* и потом узнавать Фласком успешность парсинга
 @bp.route('/upload', methods=['GET', 'POST'])
 def upload():
     form = UploadForm()

@@ -16,7 +16,7 @@
 
 {% block app_content %}
   <h1>Загрузка текстов</h1>
-  <p class="important">Здесь вы можете загрузить размеченные тексты. Они будут добавлены в базу данных. Ниже приведён образец файла.</p>
+  <p class="important">Здесь вы можете загрузить размеченные тексты. Они будут добавлены в базу данных.</p>
 
   <div class="row">
     <div class="col-md-4">
@@ -33,20 +33,40 @@
   <br>
   <div class="row">
     <div class="col-md-8">
-      <p>Внизу представлен короткий образец .xml файла. Это результат экспорта из Fieldworks
-        при выборе формата "Verifiable generic XML"
-        Пока информацию можно извлечь только из файлов с такой структурой.</p>
+      <p>Вы можете загрузить в корпус размеченный текст на ительменском языке.
+        Файл должен быть расширения .xml в формате разметки Verifiable generic XML.
+        <!-- Button trigger modal -->
+          <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#myModal">
+            Пример файла
+          </button>
+        Это формат экспорта текстов из FieldWorks.</p>
     </div>
   </div>
   <div class="row">
     <div class="col-md-12">
-      <div class="code">
-      <pre>
-        <code class="xml">
-            {{ example_xml }}
-        </code>
-      </pre>
+
+      <!-- Modal -->
+      <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Пример файла</h4>
+            </div>
+            <div class="modal-body">
+              <pre>
+                <code class="xml">
+                    {{ example_xml }}
+                </code>
+              </pre>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+            </div>
+          </div>
+        </div>
       </div>
+
     </div>
   </div>
 
