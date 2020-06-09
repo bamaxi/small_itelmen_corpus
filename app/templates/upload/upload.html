@@ -31,15 +31,23 @@
 <!--    <p>{{ form.submit }}</p>-->
 <!--  </form>-->
   <br>
-  <p>Внизу представлен короткий образец .xml файла. Это результат экспорта из Fieldworks
-    при выборе формата "Verifiable generic XML"
-    Пока информацию можно извлечь только из файлов с такой структурой.</p>
-  <div class="code">
-  <pre>
-    <code class="xml">
-        {{ example_xml }}
-    </code>
-  </pre>
+  <div class="row">
+    <div class="col-md-8">
+      <p>Внизу представлен короткий образец .xml файла. Это результат экспорта из Fieldworks
+        при выборе формата "Verifiable generic XML"
+        Пока информацию можно извлечь только из файлов с такой структурой.</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="code">
+      <pre>
+        <code class="xml">
+            {{ example_xml }}
+        </code>
+      </pre>
+      </div>
+    </div>
   </div>
 
   {% block scripts %}
