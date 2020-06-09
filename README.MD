@@ -1,5 +1,9 @@
 # Itelmen mini-corpus
 
+Сайт <https://bamaxi.pythonanywhere.com>
+Логин:  admin
+Пароль: maximillian
+
 Это попытка сделать корпус на *Flask*.
 Используются также:
 * базы данных (*SQLAlchemy*)
