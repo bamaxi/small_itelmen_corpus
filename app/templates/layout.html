@@ -29,10 +29,16 @@
 
 {% block content %}
     <div class="container">
-        {% with messages = get_flashed_messages() %}
+        {% with messages = get_flashed_messages(with_categories=True) %}
         {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-info" role="alert">{{ message }}</div>
+            {% for category, message in messages %}
+                {% if category == 'message' %}
+                  <div class="alert alert-info" role="alert">
+                {% else %}
+                  <div class="alert alert-{{ category }}" role="alert">
+                {% endif %}
+                      {{ message }}
+                   </div>
             {% endfor %}
         {% endif %}
         {% endwith %}
@@ -43,6 +49,15 @@
 
 
     {% block footer %}
+<!--        <div class="navbar-fixed-bottom row-fluid">-->
+<!--            <div class="navbar-inner">-->
+<!--                 <div class="container">-->
+<!--                     <div class="col-md-3">-->
+<!--                         -->
+<!--                     </div>-->
+<!--                 </div>-->
+<!--            </div>-->
+<!--        </div>    -->
     {% endblock %}
 
 {% endblock %}

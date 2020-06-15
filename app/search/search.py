@@ -101,7 +101,7 @@ class SearchForm(FlaskForm):
     gloss = StringField('Глосса')
     rus_lexeme = StringField('Лексема (рус)')
     itl_lexeme = StringField('Лексема (итл)')
-    submit = SubmitField('search')
+    submit = SubmitField('Поиск')
 
     # должно быть заполнено одно из полей
     def validate(self):

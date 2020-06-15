@@ -51,7 +51,7 @@ def upload():
               f'Unique (new) texts {count_unique}, total texts {count_total} '
               f'unique texts are {unique_texts_in_file}')
 
-        message = f' Спасибо! Ваш файл успешно загружен.'\
+        message = f' Спасибо! Ваш файл успешно загружен. '\
                   f'Нам удалось обработать {count_total} текстов.\n'
         if count_unique == 0:
             message += f'К сожалению, все тексты с такими заголовками уже представлены в корпусе.'
