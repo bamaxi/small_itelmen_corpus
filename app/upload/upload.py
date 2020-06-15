@@ -8,6 +8,7 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 from wtforms import SubmitField
 from werkzeug.utils import secure_filename
+from markupsafe import Markup
 
 UPLOAD_DIR = 'app/upload_data/'
 ALLOWED_EXTENSIONS = {'xml'}
@@ -24,16 +25,20 @@ class UploadForm(FlaskForm):
 def upload():
     form = UploadForm()
 
+    # если это запрос POST с валидированной формой, то...
+    # (валидаторы - в т.ч. из класса `UploadForm` - требование файла)
     if form.validate_on_submit():
         if not os.path.exists(UPLOAD_DIR):
             print(f'creating path at {UPLOAD_DIR}')
             os.mkdir(UPLOAD_DIR)
 
+        # сохранить файл в виде N_название-файла-пользователя
+        # но очищенное от html кода через `secure_filename`
         num_files = len(os.listdir(UPLOAD_DIR))
         f = form.text.data
         filename = str(num_files+1) + '_' + secure_filename(f.filename)
         if not filename[-3:] in ALLOWED_EXTENSIONS:
-            flash('Please upload a valid .xml file')
+            flash('Пожалуйста, загрузите .xml файл указанного вида', 'warning')
             return redirect(request.url)
 
         path = os.path.join(UPLOAD_DIR, filename)
@@ -46,13 +51,16 @@ def upload():
               f'Unique (new) texts {count_unique}, total texts {count_total} '
               f'unique texts are {unique_texts_in_file}')
 
-        message = f'Нам удалось обработать {count_total} текстов.\n'
+        message = f' Спасибо! Ваш файл успешно загружен.'\
+                  f'Нам удалось обработать {count_total} текстов.\n'
         if count_unique == 0:
             message += f'К сожалению, все тексты с такими заголовками уже представлены в корпусе.'
         else:
             message += f'Из них {count_unique} с такими заголовками не было в корпусе. Спасибо!'
 
-        flash('Спасибо! Ваш файл успешно загружен.\n' + message)
+        message = Markup(message.replace('\n', '<br />'))
+
+        flash(message)
         return redirect(url_for('main.index'))
 
     example_xml_path = 'app/static/example.xml'

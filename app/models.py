@@ -36,8 +36,6 @@ class Paragraph(db.Model):
     phrases = relationship('Phrase', order_by='Phrase.phrase_id',
                            back_populates='paragraph')
 
-    # order - каким-то образом порядок?
-    # span - left + right с id?
     def __repr__(self):
         return '<Paragraph {} (text_id={})>'.format(
             self.paragraph_id, self.text_id)
@@ -57,10 +55,13 @@ class Phrase(db.Model):
     words = relationship('Word', order_by='Word.word_id',
                          back_populates='phrase')
 
-    # order - каким-то образом порядок?
-    # span - left + right с id?
-
     def get_phrase_with_word_glosses(self, include_base_form=False):
+        """
+        получить для предложения словарь с разборами всех слов в нём
+        и переводом
+        :param include_base_form:
+        :return:
+        """
         phrase = {'transl': self.transl}
         words = [word.get_word_with_glosses(
                     include_base_form=include_base_form)
@@ -73,13 +74,13 @@ class Phrase(db.Model):
             self.phrase_id, self.paragraph_id)
 
 #https://web.archive.org/web/20150909165001/http://www.ferdychristant.com/blog//articles/DOMM-7QJPM7
-# TODO: add parent - previous word and desc - next word
-# TODO: add lineage - word order (for each?) or for sentences actually?
+# TODO?: add parent - previous word and desc - next word
+# TODO?: add lineage - word order (for each?) or for sentences actually?
 class Word(db.Model):
     '''
     одно слово - форма (text), часть речи (pos), перевод (transl)
-
     '''
+
     __tablename__ = 'words'
     word_id = db.Column(db.Integer, primary_key=True)
     phrase_id = db.Column(db.Integer, db.ForeignKey('phrases.phrase_id'),
@@ -87,7 +88,6 @@ class Word(db.Model):
     # many-to-one предложения к абазцу
     phrase = relationship('Phrase', back_populates='words')
 
-    # order - каким-то образом порядок? А нужно ли именно здесь?
     text = db.Column(db.String(60), nullable=False)
     # везде было nullable=False
     gloss = db.Column(db.String(60))
@@ -98,6 +98,11 @@ class Word(db.Model):
     morphs = relationship('Morph', order_by='Morph.morph_id', back_populates='word')
 
     def get_word_with_glosses(self, include_base_form=False):
+        """
+        получить словарь с информацией о слове и собранными воедино морфами
+        :param include_base_form:
+        :return:
+        """
         full_word = {'word': self.text, 'rus_lexeme': '',
                      'itl_lexeme': '',
                      'dash': '', 'gloss': '', 'base': ''}
@@ -123,8 +128,14 @@ class Word(db.Model):
         full_word['base'] = full_word['base'].rstrip('|')
         return full_word
 
-    # функция снизу вверх, а потом сверху вниз. По морфу получить словарь, где верхний уровень - текст
     def get_text_by_word(self, include_base_form=False):
+        # TODO: в таком словаре как раз основное неудобство
+        """
+        функция идущая по иерархии снизу вверх, а потом сверху вниз
+        По морфу получить словарь, где верхний уровень - текст
+        :param include_base_form:
+        :return: словарь, описывающий одно слово из текста, предложение и текст
+        """
         text_by_word = {}
         text = self.phrase.paragraph.text
 
@@ -149,10 +160,7 @@ class Word(db.Model):
 
 
 class Morph(db.Model):
-    '''
-    морфы
-    type - префикс/основа/суффикс
-    '''
+    # type - префикс/основа/суффикс
     __tablename__ = 'morphs'
     morph_id = db.Column(db.Integer, primary_key=True)
     word_id = db.Column(db.Integer, db.ForeignKey('words.word_id'),
@@ -168,7 +176,8 @@ class Morph(db.Model):
     pos = db.Column(db.String(20))
     # order - каким-то образом порядок? А нужно ли именно здесь?
 
-    # функция снизу вверх, а потом сверху вниз. По морфу получить словарь, где верхний уровень - текст
+    # функция идущая по иерархии снизу вверх, а потом сверху вниз
+    # По морфу получить словарь, где верхний уровень - текст
     def get_text_by_morph(self):
         text_by_morph = self.word.get_text_by_word()
         return text_by_morph
@@ -190,13 +199,3 @@ class Morph(db.Model):
 #     def __repr__(self):
 #         return '<Author {} (author_id={})>'.format(
 #             self.name, self.author_id)
-
-
-# class User(db.Model):
-#     __tablename__ = 'users'
-#     id = db.Column(db.Integer, primary_key=True)
-#     username = db.Column(db.String(80), unique=True, nullable=False)
-#     email = db.Column(db.String(120), unique=True, nullable=False)
-#
-#     def __repr__(self):
-#         return '<User %r>' % self.username

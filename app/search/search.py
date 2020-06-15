@@ -12,8 +12,11 @@ from wtforms import StringField, SubmitField
 
 
 def get_total_for_corpus():
-    return {'total_words': len(Word.query.all()),
-            'total_docs': len(Text.query.all())}
+    """
+    узнать текущее число текстов и словоформ в корпусе
+    """
+    return {'total_words': Word.query.count(),
+            'total_docs': Text.query.count()}
 
 
 def do_search(include_base_form=True, **search_params):
@@ -46,7 +49,7 @@ def do_search(include_base_form=True, **search_params):
         joined = joined.filter(Word.transl == rus_lexeme)
     # фильтры по Morph
     # TODO: искать через LIKE не идеально, могут браться не полные глоссы,
-    # а части других глосс тоже
+    # TODO: ... а части других глосс тоже (?)
     if gloss != '':
         gloss = '%' + gloss.lower() + '%'
         joined = joined.filter(
@@ -60,6 +63,7 @@ def do_search(include_base_form=True, **search_params):
     # для каждой формы получить словарь вплоть до текста
     # объединить дублирующиеся словари
     # TODO: всё это неэкономно, поправить
+    # TODO: кажется, здесь достаточно if count == 0 и не надо ловить исключение
     joined_all = joined.all()
     count = len(joined_all)
     try:
@@ -92,7 +96,6 @@ def do_search(include_base_form=True, **search_params):
     return count, docs_count, res
 
 
-
 class SearchForm(FlaskForm):
     word_form = StringField('Словоформа (итл)')
     gloss = StringField('Глосса')
@@ -106,17 +109,20 @@ class SearchForm(FlaskForm):
             return False
         if (not self.word_form.data and not self.gloss.data
             and not self.rus_lexeme.data and not self.itl_lexeme.data):
-            msg = 'At least one search field should be set'
+            msg = 'Хотя бы одно поле должно быть заполнено'
             # TODO: можно сделать ошибки для всех
-            self.word_form.errors.append(msg)
+            for field in (self.word_form, self.gloss, self.rus_lexeme, self.itl_lexeme):
+                field.errors.append(msg)
             return False
         return True
 
-# url_for('search.search') - снаружи
-# или '.search' - внутри чертежа
+
 @bp.route('/search', methods=['GET', 'POST'])
 def search():
     form = SearchForm()
+
+    # если это форма, для которой проходит валидация, то послать запрсо
+    # (валидация это в т.ч. функция в классе)
     if form.validate_on_submit():
         form_input = {"word_form": form.word_form.data,
             "rus_lexeme": form.rus_lexeme.data, "gloss": form.gloss.data,
@@ -132,6 +138,7 @@ def search_results():
     query = request.args['query']
     query = loads(query)
     print(type(query), 'query:', query)
+
     count, docs_count, res = do_search(**query)
 
     total = get_total_for_corpus()
