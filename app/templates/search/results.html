@@ -29,7 +29,7 @@
     <div class="col-md-7">
         <div class="results">
             {% for text_id, text in res|dictsort %}
-              <!--text is a dict-->
+<!--              {% include 'search/_example.html' %}-->
               <div class="text-results">
                 <p><h3>{{loop.index}}. {{ text['title']|e }} <small class="text-muted">{{ text['author']|e }}</small></h3></p>
                 {% for phrase_id, phrases in text['phrases']|dictsort %}

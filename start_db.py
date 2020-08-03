@@ -4,7 +4,7 @@ from app import db, create_app
 app = create_app()
 app.app_context().push()
 
-from app.models import Text, Paragraph, Phrase, Word, Morph
+# from app.models import Text, Paragraph, Phrase, Word, Morph
 
 from app.update_db.update import add_data
 

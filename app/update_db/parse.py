@@ -15,7 +15,9 @@ def phrases_to_dicts(phrases):
     words = phrases.word.words.extract()
     word_tags = words.find_all('word')
     # word_tags = phrases.word.words.find_all('word')
+    order = 1
     for word_tag in word_tags:
+        # TODO: what happens with punctuation? It isn't taken, but how?
         word_dict = {'to_words': {}, 'to_morphs': []}
         word = word_tag
 
@@ -25,6 +27,9 @@ def phrases_to_dicts(phrases):
             continue
 
         word_dict['to_words']['text'] = word.find('item', type='txt').string
+        if word_dict['to_words']['text']:
+            word_dict['to_words']['order'] = order
+            order += 1
         try:
             word_dict['to_words']['transl'] = word.find('item', type='gls').string
             word_dict['to_words']['pos'] = word.find('item', type='pos').string
@@ -45,7 +50,7 @@ def phrases_to_dicts(phrases):
             word_dict['to_morphs'].append(morph_dict)
 
         words_with_morphs.append(word_dict)
-        # print(words_with_morphs)
+        print(words_with_morphs)
 
     try:
         transl = phrases.find('item', type='gls').string

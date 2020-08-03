@@ -7,15 +7,16 @@ from app import db
 BASE_FILE = 'xml_texts/text_1.xml'
 
 
-def add_data(base_file):
+def add_data(file):
     # used to check existence before adding
     unique_in_file = set()
     count_unique = 0
     count_total = 0
 
-    data = parse_xml(base_file)
+    data = parse_xml(file)
     count_total = len(list(data.keys()))
 
+    # TODO: bad practice, must be external to func call
     engine = db.session.get_bind()
     session_factory = sessionmaker(bind=engine)
     Session = scoped_session(session_factory)

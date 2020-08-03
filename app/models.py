@@ -93,9 +93,22 @@ class Word(db.Model):
     gloss = db.Column(db.String(60))
     pos = db.Column(db.String(20))
     transl = db.Column(db.String(60))
+    order = db.Column(db.Integer)
 
     # one-to-many к морфам
     morphs = relationship('Morph', order_by='Morph.morph_id', back_populates='word')
+
+    def get_full_gloss(self):
+        gloss = ''
+        for morph in self.morphs:
+            try:
+                gloss += morph.gloss + '-'
+            except TypeError:
+                # something is None and we're concatenating None + str
+                continue
+        return gloss
+
+    gloss = get_full_gloss()
 
     def get_word_with_glosses(self, include_base_form=False):
         """
