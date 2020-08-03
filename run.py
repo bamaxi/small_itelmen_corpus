@@ -1,4 +1,5 @@
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker, scoped_session, aliased
+from sqlalchemy import text
 
 from app import create_app, db
 from app.models import Text, Word, Morph
@@ -15,4 +16,4 @@ with app.app_context():
 @app.shell_context_processor
 def make_shell_context():
     return {'db': db, 'Text': Text, 'Word': Word, 'Morph': Morph,
-            'Session': Session}
+            'Session': Session, 'aliased': aliased, 'text': text}

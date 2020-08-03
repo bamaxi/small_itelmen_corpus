@@ -5,11 +5,13 @@ from app import db
 
 class Text(db.Model):
     __tablename__ = 'texts'
+    # TODO: add metadata on text? Filename, date of adding..
     text_id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(300), default='Неизвестный текст')
     author = db.Column(db.String(100), default='Автор неизвестен')
     # author_id = db.Column(db.Integer, db.ForeignKey('Author.author_id'),
     #                       nullable=False)
+
 
     # many-to-one тексты к автору
     # author_obj = relationship('Author', back_populates='texts')
@@ -45,7 +47,7 @@ class Phrase(db.Model):
     __tablename__ = 'phrases'
     phrase_id = db.Column(db.Integer, primary_key=True)
     paragraph_id = db.Column(db.Integer, db.ForeignKey('paragraphs.paragraph_id'),
-                        nullable=False)
+                             nullable=False)
     transl = db.Column(db.String(200))
 
     # many-to-one предложения к абазцу
@@ -55,16 +57,16 @@ class Phrase(db.Model):
     words = relationship('Word', order_by='Word.word_id',
                          back_populates='phrase')
 
-    def get_phrase_with_word_glosses(self, include_base_form=False):
+    def get_phrase_with_word_glosses(self, highlight):
         """
         получить для предложения словарь с разборами всех слов в нём
         и переводом
-        :param include_base_form:
+        :param highlight: list of 2-tuples with left and right border for highlight
+                        (in case we need to higlight multiple parts of sentence)
         :return:
         """
-        phrase = {'transl': self.transl}
-        words = [word.get_word_with_glosses(
-                    include_base_form=include_base_form)
+        phrase = {'transl': self.transl, 'highlight': highlight}
+        words = [word.get_word_with_glosses()
                  for word in self.words]
         phrase['words'] = words
         return phrase
@@ -73,14 +75,12 @@ class Phrase(db.Model):
         return '<Phrase {} (paragraph_id={})>'.format(
             self.phrase_id, self.paragraph_id)
 
-#https://web.archive.org/web/20150909165001/http://www.ferdychristant.com/blog//articles/DOMM-7QJPM7
-# TODO?: add parent - previous word and desc - next word
-# TODO?: add lineage - word order (for each?) or for sentences actually?
-class Word(db.Model):
-    '''
-    одно слово - форма (text), часть речи (pos), перевод (transl)
-    '''
 
+# https://web.archive.org/web/20150909165001/http://www.ferdychristant.com/blog//articles/DOMM-7QJPM7
+class Word(db.Model):
+    """
+    одно слово - форма (text), часть речи (pos), перевод (transl)
+    """
     __tablename__ = 'words'
     word_id = db.Column(db.Integer, primary_key=True)
     phrase_id = db.Column(db.Integer, db.ForeignKey('phrases.phrase_id'),
@@ -98,22 +98,9 @@ class Word(db.Model):
     # one-to-many к морфам
     morphs = relationship('Morph', order_by='Morph.morph_id', back_populates='word')
 
-    def get_full_gloss(self):
-        gloss = ''
-        for morph in self.morphs:
-            try:
-                gloss += morph.gloss + '-'
-            except TypeError:
-                # something is None and we're concatenating None + str
-                continue
-        return gloss
-
-    gloss = get_full_gloss()
-
-    def get_word_with_glosses(self, include_base_form=False):
+    def get_word_with_glosses(self):
         """
         получить словарь с информацией о слове и собранными воедино морфами
-        :param include_base_form:
         :return:
         """
         full_word = {'word': self.text, 'rus_lexeme': '',
@@ -127,12 +114,10 @@ class Word(db.Model):
             if morph.type == 'stem':
                 full_word['itl_lexeme'] = morph.base_form
             full_word['dash'] += morph.text
-            # TODO: добавить глоссу через дефис к колонкам Word, чтобы лучше искать глоссы
-            # хотя все равно не спасает..
+
             try:
                 full_word['gloss'] += morph.gloss + '-'
-                if include_base_form==True:
-                    full_word['base'] += morph.base_form + '|'
+                full_word['base'] += morph.base_form + '|'
             except TypeError:
                 # something is None and we're concatenating None + str
                 continue
@@ -141,12 +126,12 @@ class Word(db.Model):
         full_word['base'] = full_word['base'].rstrip('|')
         return full_word
 
-    def get_text_by_word(self, include_base_form=False):
+    def get_text_by_word(self, highlight):
         # TODO: в таком словаре как раз основное неудобство
+        # TODO: highlight will need to be checked in search.py
         """
         функция идущая по иерархии снизу вверх, а потом сверху вниз
         По морфу получить словарь, где верхний уровень - текст
-        :param include_base_form:
         :return: словарь, описывающий одно слово из текста, предложение и текст
         """
         text_by_word = {}
@@ -162,14 +147,13 @@ class Word(db.Model):
         # похожим образом здесь ключ phrase_id, дальше их список
         phrases_list = []
         text_by_word[text.text_id]['phrases'][phrase.phrase_id] = phrases_list
-        phrases_list.append(phrase.get_phrase_with_word_glosses(
-            include_base_form=include_base_form))
+        phrases_list.append(phrase.get_phrase_with_word_glosses(highlight))
 
         return text_by_word
 
     def __repr__(self):
-        return '<Word {} (gloss={}, phrase_id={}, word_id={})>'.format(
-            self.text, self.gloss, self.phrase_id, self.word_id)
+        return '<Word {} (gloss={}, phrase_id={}, word_id={}, order={})>'.format(
+            self.text, self.gloss, self.phrase_id, self.word_id, self.order)
 
 
 class Morph(db.Model):
@@ -177,11 +161,11 @@ class Morph(db.Model):
     __tablename__ = 'morphs'
     morph_id = db.Column(db.Integer, primary_key=True)
     word_id = db.Column(db.Integer, db.ForeignKey('words.word_id'),
-                          nullable=False)
+                        nullable=False)
     # many-to-one морфы к слову
     word = relationship('Word', back_populates='morphs')
 
-    ### везде было nullable=False
+    # везде было nullable=False
     text = db.Column(db.String(60), nullable=False)
     base_form = db.Column(db.String(60))
     type = db.Column(db.String(60))

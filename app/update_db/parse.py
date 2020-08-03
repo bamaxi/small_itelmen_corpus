@@ -2,40 +2,48 @@ from bs4 import BeautifulSoup
 
 
 def phrases_to_dicts(phrases):
-    '''
+    """
     turn what's inside <phrases> - <word> that contains
         <words> - words themselves
         and <item> - text segment mark
     into list of dicts - list of words
     In sample text paragraph always contained <phrases> which contained <word> that contained <words>.
     Searching all words, just in case, requires looking for immediate <word> descendant of phrases
-    :return:
-    '''
+    :return: dict with phrase translation, and words with their morphs
+    """
     words_with_morphs = []
     words = phrases.word.words.extract()
     word_tags = words.find_all('word')
-    # word_tags = phrases.word.words.find_all('word')
+
     order = 1
     for word_tag in word_tags:
-        # TODO: what happens with punctuation? It isn't taken, but how?
         word_dict = {'to_words': {}, 'to_morphs': []}
         word = word_tag
 
+        # TODO: check possible configurations. When is <morphemes> missing?
+        #  Are there cases when it's missing and <word type='txt'> is present?
         try:
             morphemes_tag = word.morphemes.extract()
         except AttributeError as e:
+            # tag <word> doesn't have a nested <morphemes>
             continue
 
-        word_dict['to_words']['text'] = word.find('item', type='txt').string
-        if word_dict['to_words']['text']:
+        # find a word and add it with its order if it's found
+        #  punctuation is omitted, because its type is (should be) `punct`
+        word_text = word.find('item', type='txt').string
+        # word_dict['to_words']['text'] = word.find('item', type='txt').string
+        if word_text:
+            word_dict['to_words']['text'] = word_text
             word_dict['to_words']['order'] = order
             order += 1
+        # try to get a translation and part of speech.
         try:
             word_dict['to_words']['transl'] = word.find('item', type='gls').string
             word_dict['to_words']['pos'] = word.find('item', type='pos').string
         except AttributeError as e:
             pass
 
+        # get all <morphemes> data for current word
         for morph in morphemes_tag.find_all('morph'):
             morph_dict = {}
             morph_dict['type'] = morph.get('type', '')
@@ -49,9 +57,20 @@ def phrases_to_dicts(phrases):
 
             word_dict['to_morphs'].append(morph_dict)
 
-        words_with_morphs.append(word_dict)
-        print(words_with_morphs)
+        # build full gloss from relevant morph glosses
+        full_gloss = ''
+        for morph in word_dict['to_morphs']:
+            try:
+                full_gloss += morph.get('gloss') + '-'
+            except TypeError:
+                # something is None and we're concatenating None + str
+                continue
+        word_dict['to_words']['gloss'] = full_gloss.rstrip('-')
 
+        words_with_morphs.append(word_dict)
+        # print(words_with_morphs)
+
+    # get phrase translation
     try:
         transl = phrases.find('item', type='gls').string
     except AttributeError:
@@ -59,6 +78,7 @@ def phrases_to_dicts(phrases):
     if transl is None:
         transl = '(перевода нет)'
         # чтобы была правильная вложенность []
+        # TODO: make data structure simpler
     return [{'transl': transl, 'words_with_morphs': words_with_morphs}]
 
 
