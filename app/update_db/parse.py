@@ -29,7 +29,7 @@ def phrases_to_dicts(phrases):
             continue
 
         # find a word and add it with its order if it's found
-        #  punctuation is omitted, because its type is (should be) `punct`
+        #     punctuation is omitted, because its type is (should be) `punct`
         word_text = word.find('item', type='txt').string
         # word_dict['to_words']['text'] = word.find('item', type='txt').string
         if word_text:
@@ -68,7 +68,6 @@ def phrases_to_dicts(phrases):
         word_dict['to_words']['gloss'] = full_gloss.rstrip('-')
 
         words_with_morphs.append(word_dict)
-        # print(words_with_morphs)
 
     # get phrase translation
     try:
@@ -90,19 +89,35 @@ def paragraphs_to_dict(paragraphs, take_first_paragraph=False):
 
 
 def parse_xml(filename, take_first_text=False, take_first_paragraph=False):
-    res = {}
+    """
+    parses an .xml file in Verifiable generic XML markup exported from Fieldworks
+    :param filename:
+    :param take_first_text: only parse first text in file (for testing)
+    :param take_first_paragraph: only parse first paragraph in file (for testing)
+    :return:
+    """
+
+    res = {}  # here parsed text will be stored in hierarchical fashion
     par_count = 0
 
     with open(filename, 'r', encoding='utf-8') as f:
         soup = BeautifulSoup(f, "lxml-xml")
 
+    # find texts, count them, print soup if no texts found
     texts = soup.find_all('interlinear-text')
     total_texts = len(texts)
     print(f"texts by <interlinear-text>: {total_texts}")
-    if total_texts==0:
-        print(f"soup is:\n {soup.prettify()}")
+    if total_texts == 0:
+        print(f"no texts found, soup is:\n {soup.prettify()}")
 
-    if take_first_text==True:
+    # TODO: better code that should first be tested
+    if take_first_text:
+        texts = [texts[0]]
+
+    # ... *here we would have code currenly in "else" clause* ...
+    # END_TODO
+
+    if take_first_text:
         paragraphs = texts[0].find_all('paragraph')
         try:
             title = texts[0].find('item', type='title').string

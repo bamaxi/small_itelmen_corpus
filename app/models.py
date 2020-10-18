@@ -12,7 +12,6 @@ class Text(db.Model):
     # author_id = db.Column(db.Integer, db.ForeignKey('Author.author_id'),
     #                       nullable=False)
 
-
     # many-to-one тексты к автору
     # author_obj = relationship('Author', back_populates='texts')
 
@@ -62,7 +61,7 @@ class Phrase(db.Model):
         получить для предложения словарь с разборами всех слов в нём
         и переводом
         :param highlight: list of 2-tuples with left and right border for highlight
-                        (in case we need to higlight multiple parts of sentence)
+                        (in case we need to highlight multiple parts of sentence)
         :return:
         """
         phrase = {'transl': self.transl, 'highlight': highlight}
@@ -72,8 +71,8 @@ class Phrase(db.Model):
         return phrase
 
     def __repr__(self):
-        return '<Phrase {} (paragraph_id={})>'.format(
-            self.phrase_id, self.paragraph_id)
+        return '<Phrase {} (paragraph_id={}, words={})>'.format(
+            self.phrase_id, self.paragraph_id, self.words)
 
 
 # https://web.archive.org/web/20150909165001/http://www.ferdychristant.com/blog//articles/DOMM-7QJPM7
@@ -128,7 +127,10 @@ class Word(db.Model):
 
     def get_text_by_word(self, highlight):
         # TODO: в таком словаре как раз основное неудобство
-        # TODO: highlight will need to be checked in search.py
+        #  как вариант, id можно хранить во множестве внутри словаря
+        #  а тексты и фразы в списках
+        #  порядок всё равно сохранится, потому что добавляем последовательно
+        #  highlight will need to be checked in search.py
         """
         функция идущая по иерархии снизу вверх, а потом сверху вниз
         По морфу получить словарь, где верхний уровень - текст
@@ -145,9 +147,13 @@ class Word(db.Model):
 
         phrase = self.phrase
         # похожим образом здесь ключ phrase_id, дальше их список
-        phrases_list = []
-        text_by_word[text.text_id]['phrases'][phrase.phrase_id] = phrases_list
-        phrases_list.append(phrase.get_phrase_with_word_glosses(highlight))
+        #  но почему список? под одним phrase_id одно предложение
+        #  поменял на элемент, а не список
+        # phrases_list = []
+        # text_by_word[text.text_id]['phrases'][phrase.phrase_id] = phrases_list
+        # phrases_list.append(phrase.get_phrase_with_word_glosses(highlight))
+        text_by_word[text.text_id]['phrases'][phrase.phrase_id] = \
+            phrase.get_phrase_with_word_glosses(highlight)
 
         return text_by_word
 
@@ -157,7 +163,6 @@ class Word(db.Model):
 
 
 class Morph(db.Model):
-    # type - префикс/основа/суффикс
     __tablename__ = 'morphs'
     morph_id = db.Column(db.Integer, primary_key=True)
     word_id = db.Column(db.Integer, db.ForeignKey('words.word_id'),

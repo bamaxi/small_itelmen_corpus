@@ -1,5 +1,10 @@
 {% extends "bootstrap/base.html" %}
 
+{% block scripts %}
+{{ super() }}
+<script src = "{{ url_for('static', filename='src/jquery-3.5.1.js') }}"></script>
+<script src = "{{ url_for('static', filename='src/add_search_form.js') }}"></script>
+{% endblock %}
 {% block title %}
     {% if title %} {{ title }} - ItelCorpus{% else %}Welcome to ItelCrowdSourceCorpus{% endif %}
 {% endblock %}

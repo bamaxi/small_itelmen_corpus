@@ -16,7 +16,7 @@ def add_data(file):
     data = parse_xml(file)
     count_total = len(list(data.keys()))
 
-    # TODO: bad practice, must be external to func call
+    # TODO: bad practice? should be external to func call?
     engine = db.session.get_bind()
     session_factory = sessionmaker(bind=engine)
     Session = scoped_session(session_factory)
