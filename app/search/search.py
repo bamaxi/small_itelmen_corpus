@@ -1,14 +1,28 @@
-from . import bp
+import logging
+import json
+
 from flask import render_template, redirect, url_for, request
 from flask.json import dumps, loads
+from sqlalchemy.orm import sessionmaker, scoped_session, aliased
+from sqlalchemy import text, and_
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField, FormField, FieldList
+
+from . import bp
 from app import db
 from app.models import Text, Word, Morph
 
-from sqlalchemy.orm import sessionmaker, scoped_session, aliased
-from sqlalchemy import text, and_
+logger=logging.getLogger()
 
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, FormField, FieldList
+
+class MyEncoder(json.JSONEncoder):
+    def default(self, o):
+        return str(o)
+
+
+def pretty_log(obj):
+    return (json.dumps(obj, ensure_ascii=False, indent=2, cls=MyEncoder)
+            if isinstance(obj, (dict, list)) else str(obj))
 
 
 def get_total_for_corpus():
@@ -41,8 +55,10 @@ def do_search(forms_list):
         forms_ = [forms_]
 
     total_forms_in_query = len(forms_)
+    # we repeat same tables
     word_aliases = [aliased(Word) for i in range(total_forms_in_query)]
 
+    logger.info('There are %d forms: %s', total_forms_in_query, pretty_log(forms_))
     # a query is then built sequentially:
     #  it is updated for each field (gloss, pos, transl, etc.) of each word
     #  since this is high-level code, it may be slow
@@ -54,30 +70,33 @@ def do_search(forms_list):
         cur_table = word_aliases[i]
 
         # make sure word forms are a part of a single phrase
-        #  and that they are in the correct order
+        #   and that they are in the correct order
         if i != 0:
             q = q.filter(cur_table.phrase_id == word_aliases[0].phrase_id,
                          cur_table.order == word_aliases[i - 1].order + 1)
         # only leave valued AND SUPPORTED fields
+        # TODO: support for zero inputs (either here and in form validation
+        #   or with a special search character)
         form = {map_[field]: val for field, val in form.items()
-                        if (val != '' and field not in UNSUPPORTED_FIELDS)}
+                if (val != '' and field not in UNSUPPORTED_FIELDS)}
 
         # do filtering for all fields of one word form
         for field, value in form.items():
-            print(field, value)
+            logger.debug('The field is `%s` with value `%s`', field, value)
             if field == 'gloss':
                 value = '%' + value.lower() + '%'
-                print(value)
+                logger.debug('gloss val is `%s`', value)
                 # getattr(cur_table, field) is equal to `cur_table.%VALUE_OF_FIELD_VARIABLE%`
                 q = q.filter(getattr(cur_table, field).ilike(text(':value'))).params(value=value)
             else:
                 q = q.filter(getattr(cur_table, field) == value)
-        # ####
-        print(q.all())
+        # print results after filtering a form
+        # temp = q.all()
+        # logger.debug('Full wordform data: %s\nResult for wordforms up to current (N=%d):\n%s',
+        #              pretty_log(form.items()), len(temp), pretty_log(temp))
 
     results = q.all()
     count = len(results)
-    # print('!!!results!!!', results)
     if count == 0:
         return 0, 0, None
 
@@ -88,7 +107,7 @@ def do_search(forms_list):
         # TODO: does this and further code highlight multiple results
         #  in a single sentence?
         if isinstance(result, tuple):
-            print('!!!A TUPLE!!!', result)
+            logger.info(str(('!!!A TUPLE!!!', result)))
             result = result[0]
         highlight = [(result.order,
                       result.order + total_forms_in_query - 1)]
@@ -119,7 +138,7 @@ def do_search(forms_list):
     docs_count = len(res)
     # TODO: в каждую фразу на один уровень с transl добавлять список с номерами нужных слов,
     #  чтобы их выделять
-    print(res)
+    logger.debug('Results are:\n%s', pretty_log(res))
     return count, docs_count, res
 
 

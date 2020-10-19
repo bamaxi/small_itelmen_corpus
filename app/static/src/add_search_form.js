@@ -1,29 +1,33 @@
 var tableCount = 1
 function get_table_change_num() {
-
     index_regex = /(?<=tokens_list-)\d/g
 
     // get table parent - <li> (since applying .html() to <table> will give <tbody>
-    orig_table = $("table[id=tokens_list-0]")
+    orig_table = $("table[id=tokens_list-0]").parent()
     table = orig_table.clone()
 
+    // leave only csrf tag in <input> and the table (deleting <h3> with form name for example)
+    table.children().not("table, input").remove()
+//    table.remove(":root :not(table id)")
+
     // table.remove("label[for=tokens_list-0]").remove("input[type=hidden]")
-	alert(table.html())
-    alert(orig_table.html())
+//	alert(table.html())
+//    alert(orig_table.html())
     // put the correct ids into place
         fix = table.html().replace(index_regex, tableCount)
-		alert(fix)
-        alert(orig_table.html())
+//		alert(fix)
+//        alert(orig_table.html())
     table.html(fix)
-    alert(table.html())
-    alert(orig_table.html())
+//    alert(table.html())
+//    alert(orig_table.html())
 
-    code = `<div><li><h3>Словоформа ${tableCount + 1}</h3><table></table></li></div>`
+//    code = `<div><li><h3>Словоформа ${tableCount + 1}</h3><table></table></li></div>`
+    code = `<div><li><h3>Словоформа ${tableCount + 1}</h3></li></div>`
     new_table = $(code)
     $("table", new_table).attr("id", `tokens_list-${tableCount}`)
-        .append(table.html())
+//        .append(table.html())
+    $("li", new_table).append(table.html())
 //    alert(new_table.html())
-
 
 	// append our new <li> as a child to <ul> of tokens
     $("ul[id=tokens_list]").append(new_table.html())

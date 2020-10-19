@@ -25,11 +25,11 @@ ul {
 
 <!--  <div id="form">-->
   <form action="" method="post" role="form" id="bigForm" novalidate>
-    {# {{ form.hidden_tag() }} #}
+    {{ form.hidden_tag() }}
     <ul id="tokens_list">
       {% for token in form.tokens_list %}
         <li>
-            {# {{ token.hidden_tag() }} #}
+            {{ token.hidden_tag() }}
             <h3>Словоформа {{ loop.index }}</h3>
             <table id="tokens_list-{{loop.index-1}}">
                 <tr>
@@ -53,7 +53,7 @@ ul {
       {% endfor %}
         {# {{ form.tokens_list }} #}
     </ul>
-<!--    <input type=button onClick="get_table_change_num()" value="добавить словоформу">-->
+    <input type=button onClick="get_table_change_num()" value="добавить словоформу">
     {{ form.submit }}
   </form>
 <!--  </div>-->

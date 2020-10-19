@@ -1,5 +1,9 @@
-.idea
-*.db
-__pycache__
-upload_data
 !static/
+
+.idea
+__pycache__
+
+# produced during runnig
+upload_data
+logs
+*.db

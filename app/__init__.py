@@ -1,17 +1,30 @@
 import os
+from pathlib import Path
+import logging
+from logging.config import dictConfig
 
 from flask import Flask, render_template
-from config import Config
 from werkzeug.debug import DebuggedApplication
-
-# import jinja2_highlight
-# import pygments
-# from pygments import lexers
-
 # база данных
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
+# import jinja2_highlight
+# import pygments
+# from pygments import lexers
+
+from config import Config, loggingConfig
+
+# create logging dir if needed
+path = Path(Config.LOGGING_FILE)
+try:
+    os.makedirs(path.parent)
+except OSError:
+    pass
+
+dictConfig(loggingConfig)
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -72,10 +85,6 @@ def create_app(test_config=None):
     if app.debug:
         app.wsgi_app = DebuggedApplication(app.wsgi_app, evalex=True)
 
-    # @app.route('/')
-    # def index():
-    #     # return 'Hello, World!'
-    #     return render_template('index.html')
     return app
 
 
