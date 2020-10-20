@@ -32,6 +32,7 @@ ul {
             {{ token.hidden_tag() }}
             <h3>Словоформа {{ loop.index }}</h3>
             <table id="tokens_list-{{loop.index-1}}">
+
                 <tr>
                   <th>{{ token.word_form.label }}</th>
                   <th>{{ token.word_form(size=40) }}</th>
@@ -48,6 +49,30 @@ ul {
                   <th>{{ token.itl_lexeme.label }}</th>
                   <th>{{ token.itl_lexeme(size=40) }}</th>
                 </tr>
+
+            {# possible block, to render everything in loop with errors
+                (won't work with javascript added form though)
+            {% for field in form if field.widget.input_type == 'text' %}
+               {% if field.errors %}
+                 <div class="has-error">
+                     <tr>
+                      <th>{{ field.label }}</th>
+                      <th>{{ field(size=40) }}</th>
+                     </tr>
+                 </div>
+                 <span style="color: red;">
+                     {% for error in field.errors %}
+                        {{ error }}{% if not loop.last %}<br />{% endif %}
+                     {% endfor %}
+                 </span>
+               {% else %}
+                  <tr>
+                      <th>{{ field.label }}</th>
+                      <th>{{ field(size=40) }}</th>
+                  </tr>
+               {% endif %}
+            {% endfor %}
+            #}
             </table>
         </li>
       {% endfor %}

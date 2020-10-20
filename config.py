@@ -7,6 +7,7 @@ class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'crowd_corpus_one_two_three'
     # DATABASE = os.path.join(app.instance_path, 'app.sqlite')
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
+    SQLALCHEMY_ECHO = True
     LOGGING_FILE = os.environ.get('FLASK_LOGGING_FILE') or 'logs/base.log'
 
 

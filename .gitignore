@@ -3,6 +3,8 @@
 .idea
 __pycache__
 
+app/testing
+
 # produced during runnig
 upload_data
 logs

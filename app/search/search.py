@@ -4,13 +4,15 @@ import json
 from flask import render_template, redirect, url_for, request
 from flask.json import dumps, loads
 from sqlalchemy.orm import sessionmaker, scoped_session, aliased
-from sqlalchemy import text, and_
+from sqlalchemy import text, and_, bindparam
+from sqlalchemy.ext import baked
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, FormField, FieldList
 
 from . import bp
 from app import db
 from app.models import Text, Word, Morph
+# from ..testing.profiling import profiled
 
 logger=logging.getLogger()
 
@@ -40,7 +42,8 @@ def do_search(forms_list):
         dictionary describing document and containing sentences
     """
     res = {}
-    session = db.session
+    # scoped_session_ = db.session
+    # session = scoped_session_()
 
     # remap names of search terms to table columns names
     # TODO: change something, so remap isn't necessary
@@ -55,48 +58,57 @@ def do_search(forms_list):
         forms_ = [forms_]
 
     total_forms_in_query = len(forms_)
-    # we repeat same tables
-    word_aliases = [aliased(Word) for i in range(total_forms_in_query)]
-
     logger.info('There are %d forms: %s', total_forms_in_query, pretty_log(forms_))
-    # a query is then built sequentially:
+    # turn list of dicts describing forms into
+    #   dict of lists describing values for fields like `gloss` etc.
+    fields = {map_[key]: [form[key] for form in forms_] for key in forms_[0].keys()
+              if key not in UNSUPPORTED_FIELDS}
+    logger.debug("query will be:%s", str(fields))
+
+    # A query is then built sequentially:
     #  it is updated for each field (gloss, pos, transl, etc.) of each word
     #  since this is high-level code, it may be slow
 
     # create base query over multiple same tables aliased differently
-    q = session.query(*word_aliases)
+    word_aliases = [aliased(Word) for i in range(total_forms_in_query)]
+    # TODO: q could be changed to fetch not whole Words, but specific fields
+    #   We could already check the needed columns here!
+    q = db.session.query(*word_aliases)
 
+    # with profiled():
+    # dict of parameters for "gloss" field
+    #   Applying them dynamically leads to strange parameter values
+    #   (next gloss replaces previous ones in `parameters` tuple)
+    params = {}
     for i, form in enumerate(forms_):
         cur_table = word_aliases[i]
-
         # make sure word forms are a part of a single phrase
         #   and that they are in the correct order
         if i != 0:
             q = q.filter(cur_table.phrase_id == word_aliases[0].phrase_id,
                          cur_table.order == word_aliases[i - 1].order + 1)
         # only leave valued AND SUPPORTED fields
-        # TODO: support for zero inputs (either here and in form validation
-        #   or with a special search character)
+        #   TODO: support for zero inputs (either here and in form validation
+        #     or with a special search character)
         form = {map_[field]: val for field, val in form.items()
                 if (val != '' and field not in UNSUPPORTED_FIELDS)}
 
         # do filtering for all fields of one word form
         for field, value in form.items():
-            logger.debug('The field is `%s` with value `%s`', field, value)
             if field == 'gloss':
                 value = '%' + value.lower() + '%'
-                logger.debug('gloss val is `%s`', value)
                 # getattr(cur_table, field) is equal to `cur_table.%VALUE_OF_FIELD_VARIABLE%`
-                q = q.filter(getattr(cur_table, field).ilike(text(':value'))).params(value=value)
+                params[f'gloss{i}'] = value  # or text(value)
+                q = q.filter(getattr(cur_table, field).ilike(bindparam(f'gloss{i}')))
+
             else:
                 q = q.filter(getattr(cur_table, field) == value)
-        # print results after filtering a form
-        # temp = q.all()
-        # logger.debug('Full wordform data: %s\nResult for wordforms up to current (N=%d):\n%s',
-        #              pretty_log(form.items()), len(temp), pretty_log(temp))
+                logger.debug('in after field, val is `%s`', value)
 
-    results = q.all()
+    results = q.params(**params).all()
     count = len(results)
+    logger.info("The result is %d long", count)
+
     if count == 0:
         return 0, 0, None
 
@@ -107,7 +119,7 @@ def do_search(forms_list):
         # TODO: does this and further code highlight multiple results
         #  in a single sentence?
         if isinstance(result, tuple):
-            logger.info(str(('!!!A TUPLE!!!', result)))
+            # logger.info(str(('!!!A TUPLE!!!', result)))
             result = result[0]
         highlight = [(result.order,
                       result.order + total_forms_in_query - 1)]
@@ -138,7 +150,7 @@ def do_search(forms_list):
     docs_count = len(res)
     # TODO: в каждую фразу на один уровень с transl добавлять список с номерами нужных слов,
     #  чтобы их выделять
-    logger.debug('Results are:\n%s', pretty_log(res))
+    # logger.debug('Results are:\n%s', pretty_log(res))
     return count, docs_count, res
 
 
@@ -152,8 +164,8 @@ class TokenForm(FlaskForm):
     def validate(self):
         if not super().validate():
             return False
-        if (not self.word_form.data and not self.gloss.data
-            and not self.rus_lexeme.data and not self.itl_lexeme.data):
+        if (not self.word_form.data and not self.gloss.data and
+                not self.rus_lexeme.data and not self.itl_lexeme.data):
             msg = 'Хотя бы одно поле должно быть заполнено'
             # TODO: можно сделать ошибки для всех
             for field in (self.word_form, self.gloss, self.rus_lexeme,
@@ -172,8 +184,8 @@ class ManySearchForms(FlaskForm):
 def search():
     form = ManySearchForms()
 
-    # если это форма, для которой проходит валидация, то послать запрсо
-    # (валидация это в т.ч. функция в классе)
+    # если это форма, для которой проходит валидация, то послать запрос
+    #   (валидация это в т.ч. функция в классе)
     if form.validate_on_submit():
         form_input = [
             {"word_form": token_form.word_form.data,
@@ -193,14 +205,7 @@ def search():
 def search_results():
     query = request.args['query']
     query = loads(query)
-    print(type(query), 'query:', query)
 
-    # new session
-    # TODO: this may be bad practice and in need of fixing
-    # engine = db.session.get_bind()
-    # session_factory = sessionmaker(bind=engine)
-    # Session = scoped_session(session_factory)
-    print(query)
     count, docs_count, res = do_search(query)
 
     total = get_total_for_corpus()
