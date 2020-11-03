@@ -1,23 +1,25 @@
-<!--text is a dict-->
-<p>this is from a subtemplate</p>
+{# text is a dict #}
 {# {% for phrase_text in phrases %} #}
+    {# if there are multiple highlights for a sentence, then render it multiple times #}
+    {% for highlight in phrase_text['highlight'] %}
       <div class="sentence-result"><div class="glosses">
-      {# if there are multiple highlights for a sentence, then render it multiple times #}
-      {% for highlight in phrase_text['highlight'] %}
+
         {% for word in phrase_text['words'] %}
           {# Single list is a "column" #}
           <ul class="tableSentence">
             <li class="{{'highlighted' if highlight[0] <= loop.index <= highlight[1] }}">
-              {{ word['word']|e }}</li>
+                {{ word['word']|e }}</li>
             <li>{{ word['dash']|e }}</li>
             <li>{{ word['gloss']|e }}</li>
             <li>{{ word['rus_lexeme']|e }}</li>
           </ul>
-      {% endfor %}
-      {% endfor %}
+        {% endfor %}
+
       </div>
         <ul class="translation" >
           <li><i>{{ phrase_text['transl']|e }}</i></li> </ul>
       </div>
-    {# {% endfor %} #}
     <br>
+    {% endfor %}
+    <br>
+{# {% endfor %} #}

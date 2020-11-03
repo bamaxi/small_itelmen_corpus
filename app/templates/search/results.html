@@ -35,28 +35,7 @@
                 <p><h3>{{loop.index}}. {{ text['title']|e }} <small class="text-muted">{{ text['author']|e }}</small></h3></p>
                 {% for phrase_id, phrase_text in text['phrases']|dictsort %}
                     {# phrase_text is also a dict #}
-                    {# {% include 'search/_example.html' %} #}
-                    {# {% for phrase_text in phrases %} #}
-                      {# if there are multiple highlights for a sentence, then render it multiple times #}
-                      {% for highlight in phrase_text['highlight'] %}
-                        <div class="sentence-result"><div class="glosses">
-                        {% for word in phrase_text['words'] %}
-                          {# Single list is a "column" #}
-                          <ul class="tableSentence">
-                            <li class="{{'highlighted' if highlight[0] <= loop.index <= highlight[1] }}">
-                              {{ word['word']|e }}</li>
-                            <li>{{ word['dash']|e }}</li>
-                            <li>{{ word['gloss']|e }}</li>
-                            <li>{{ word['rus_lexeme']|e }}</li>
-                          </ul>
-                        {% endfor %}
-                        </div>
-                          <ul class="translation" >
-                            <li><i>{{ phrase_text['transl']|e }}</i></li> </ul>
-                        </div>
-                      {% endfor %}
-                    {# {% endfor %} #}
-                    <br>
+                    {% include 'search/_example.html' %}
                 {% endfor %}
               </div>
             {% endfor %}
