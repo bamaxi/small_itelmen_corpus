@@ -1,17 +1,20 @@
-from . import bp
-from flask import redirect, url_for, render_template, request, flash
-from app.update_db.update import add_data
-
+import logging
 import os
 
+from flask import redirect, url_for, render_template, request, flash
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 from wtforms import SubmitField
 from werkzeug.utils import secure_filename
 from markupsafe import Markup
 
+from . import bp
+from app.update_db.update import add_data
+
 UPLOAD_DIR = 'app/upload_data/'
 ALLOWED_EXTENSIONS = {'xml'}
+
+logger = logging.getLogger()
 
 
 class UploadForm(FlaskForm):
@@ -29,7 +32,7 @@ def upload():
     # (валидаторы - в т.ч. из класса `UploadForm` - требование файла)
     if form.validate_on_submit():
         if not os.path.exists(UPLOAD_DIR):
-            print(f'creating path at {UPLOAD_DIR}')
+            logger.debug(f'creating path at {UPLOAD_DIR}')
             os.mkdir(UPLOAD_DIR)
 
         # сохранить файл в виде N_название-файла-пользователя
@@ -44,10 +47,11 @@ def upload():
         path = os.path.join(UPLOAD_DIR, filename)
 
         f.save(path)
-        print(f'file {path} was successfully uploaded')
+        logger.debug(f'file {path} was successfully uploaded')
 
         count_unique, count_total, unique_texts_in_file = add_data(path)
-        print(f'file {path} was parsed. '
+        logger.info(
+              f'file {path} was parsed. '
               f'Unique (new) texts {count_unique}, total texts {count_total} '
               f'unique texts are {unique_texts_in_file}')
 
@@ -59,18 +63,13 @@ def upload():
             message += f'Из них {count_unique} с такими заголовками не было в корпусе. Спасибо!'
 
         message = Markup(message.replace('\n', '<br />'))
-
         flash(message)
+
         return redirect(url_for('main.index'))
 
     example_xml_path = 'app/static/example.xml'
     with open(example_xml_path, 'r', encoding='utf-8') as f:
         example_xml = f.read()
-
-    # было в шаблоне:
-    # { % highlight 'XmlLexer' %}
-    # {{example_xml}}
-    # { % endhighlight %}
 
     return render_template('upload/upload.html',
             form=form, example_xml=example_xml)

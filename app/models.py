@@ -126,11 +126,6 @@ class Word(db.Model):
         return full_word
 
     def get_text_by_word(self, highlight):
-        # TODO: в таком словаре как раз основное неудобство
-        #  как вариант, id можно хранить во множестве внутри словаря
-        #  а тексты и фразы в списках
-        #  порядок всё равно сохранится, потому что добавляем последовательно
-        #  highlight will need to be checked in search.py
         """
         функция идущая по иерархии снизу вверх, а потом сверху вниз
         По морфу получить словарь, где верхний уровень - текст
@@ -146,12 +141,6 @@ class Word(db.Model):
                                       'phrases': {}}
 
         phrase = self.phrase
-        # похожим образом здесь ключ phrase_id, дальше их список
-        #  но почему список? под одним phrase_id одно предложение
-        #  поменял на элемент, а не список
-        # phrases_list = []
-        # text_by_word[text.text_id]['phrases'][phrase.phrase_id] = phrases_list
-        # phrases_list.append(phrase.get_phrase_with_word_glosses(highlight))
         text_by_word[text.text_id]['phrases'][phrase.phrase_id] = \
             phrase.get_phrase_with_word_glosses(highlight)
 
@@ -176,7 +165,6 @@ class Morph(db.Model):
     type = db.Column(db.String(60))
     gloss = db.Column(db.String(60))
     pos = db.Column(db.String(20))
-    # order - каким-то образом порядок? А нужно ли именно здесь?
 
     # функция идущая по иерархии снизу вверх, а потом сверху вниз
     # По морфу получить словарь, где верхний уровень - текст

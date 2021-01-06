@@ -15,6 +15,8 @@ from app.utils import pretty_log
 
 logger = logging.getLogger()
 
+UNSUPPORTED_FIELDS = ['itl_lexeme', 'pos']
+
 
 def get_total_for_corpus():
     """
@@ -31,18 +33,14 @@ def do_search(forms_list):
         dictionary describing document and containing sentences
     """
     res = {}
-    # scoped_session_ = db.session
-    # session = scoped_session_()
 
     # remap names of search terms to table columns names
     # TODO: change something, so remap isn't necessary
     map_ = {'word_form': 'text', 'rus_lexeme': 'transl',
             'pos': 'pos', 'gloss': 'gloss', 'itl_lexeme': 'itl_lexeme'}
-    UNSUPPORTED_FIELDS = ['itl_lexeme', 'pos']
 
     logger.info(f"{forms_list}")
     # so the loop below has something to iterate over
-    # TODO: refactor
     if not isinstance(forms_list, list):
         forms_list = [forms_list]
     forms_ = forms_list
@@ -50,12 +48,9 @@ def do_search(forms_list):
 
     total_forms_in_query = len(forms_)
     logger.info('There are %d forms: %s', total_forms_in_query, pretty_log(forms_))
-    # turn list of dicts describing forms into
-    #   dict of lists describing values for fields like `gloss` etc.
 
     # A query is then built sequentially:
     #  it is updated for each field (gloss, pos, transl, etc.) of each word
-    #  since this is high-level code, it may be slow
 
     # create base query over multiple same tables aliased differently
     word_aliases = [aliased(Word) for i in range(total_forms_in_query)]
@@ -86,7 +81,6 @@ def do_search(forms_list):
                 # getattr(cur_table, field) is equal to `cur_table.%VALUE_OF_FIELD_VARIABLE%`
                 params[f'gloss{i}'] = value  # or text(value)
                 q = q.filter(getattr(cur_table, field).ilike(bindparam(f'gloss{i}')))
-
             else:
                 q = q.filter(getattr(cur_table, field) == value)
                 logger.debug('in after field, val is `%s`', value)
@@ -102,7 +96,7 @@ def do_search(forms_list):
     texts = []
     for result in results:
         # TODO: This code and templates/search/results.html
-        #   creates new boxes for results occuring in  same sentence
+        #   creates new boxes for results occuring in same sentence
         #   is it desirable?
         if isinstance(result, tuple):
             result = result[0]
@@ -110,31 +104,28 @@ def do_search(forms_list):
                       result.order + total_forms_in_query - 1)]
         texts.append(result.get_text_by_word(highlight))
 
-    # TODO: fix this old code piece:
-    #   (that traverses up to Text table)
-    for text_dict in texts:
+    for candidate_text_dict in texts:
         # проверим, что текста с таким id ещё нет в словаре текстов
-        text_id = list(text_dict.keys())[0]
-        if text_id not in res:
-            res.update(text_dict)
+        candidate_text_id = list(candidate_text_dict.keys())[0]
+        if candidate_text_id not in res:
+            res.update(candidate_text_dict)
         else:
             # такой текст есть
             #  в этом случае проверим, что фразы из текущего словаря
             #  ещё нет в данных res для этого текста
-            phrases = res[text_id]['phrases']
-            for phrase_id, words in text_dict[text_id]['phrases'].items():
-                if phrase_id not in phrases:
-                    phrases[phrase_id] = words
+            phrases = res[candidate_text_id]['phrases']
+            for candidate_phrase_id, candidate_words in \
+                    candidate_text_dict[candidate_text_id]['phrases'].items():
+                if candidate_phrase_id not in phrases:
+                    phrases[candidate_phrase_id] = candidate_words
                 # наконец, проверим, были ли уже найдены эти конкретные слова
                 else:
-                    to_highlight = words['highlight'][0]
-                    already_highlighted = phrases[phrase_id]['highlight']
-                    if to_highlight not in already_highlighted:
-                        already_highlighted.append(to_highlight)
+                    candidate_to_highlight = candidate_words['highlight'][0]
+                    already_highlighted = phrases[candidate_phrase_id]['highlight']
+                    if candidate_to_highlight not in already_highlighted:
+                        already_highlighted.append(candidate_to_highlight)
 
     docs_count = len(res)
-    # TODO: в каждую фразу на один уровень с transl добавлять список с номерами нужных слов,
-    #  чтобы их выделять
     logger.debug('Results are:\n%s', pretty_log(res))
     return count, docs_count, res
 
@@ -175,8 +166,6 @@ class ManySearchForms(FlaskForm):
     tokens_list = FieldList(FormField(TokenForm), [ensure_first_and_last_filled],
                             min_entries=1)
     submit = SubmitField('Поиск')
-
-
 
 
 @bp.route('/search', methods=['GET', 'POST'])

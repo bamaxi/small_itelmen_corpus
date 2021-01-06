@@ -3,15 +3,13 @@ from pathlib import Path
 import logging
 from logging.config import dictConfig
 
-from flask import Flask, render_template
 from werkzeug.debug import DebuggedApplication
+from flask import Flask, render_template
+
 # база данных
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
-# import jinja2_highlight
-# import pygments
-# from pygments import lexers
 
 from config import Config, loggingConfig
 
@@ -73,14 +71,6 @@ def create_app(test_config=None):
     # blueprint для главной страницы
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
-
-    # jinja_options = dict(Flask.jinja_options)
-    # jinja_options.setdefault('extensions',
-    #                          []).append('jinja2_highlight.HighlightExtension')
-    # app.jinja_env.extend(jinja2_highlight_cssclass='codehilite')
-    # app.jinja_env.add_extension("jinja2_highlight.HighlightExtension")
-
-    secret_key = app.config['SECRET_KEY']
 
     if app.debug:
         app.wsgi_app = DebuggedApplication(app.wsgi_app, evalex=True)
