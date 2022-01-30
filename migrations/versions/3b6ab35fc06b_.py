@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: a137f17c487d
+Revision ID: 3b6ab35fc06b
 Revises: 
-Create Date: 2020-06-06 12:09:03.450807
+Create Date: 2022-01-30 21:10:39.908740
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'a137f17c487d'
+revision = '3b6ab35fc06b'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -23,14 +23,6 @@ def upgrade():
     sa.Column('title', sa.String(length=300), nullable=True),
     sa.Column('author', sa.String(length=100), nullable=True),
     sa.PrimaryKeyConstraint('text_id')
-    )
-    op.create_table('users',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('username', sa.String(length=80), nullable=False),
-    sa.Column('email', sa.String(length=120), nullable=False),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('email'),
-    sa.UniqueConstraint('username')
     )
     op.create_table('paragraphs',
     sa.Column('paragraph_id', sa.Integer(), nullable=False),
@@ -52,6 +44,7 @@ def upgrade():
     sa.Column('gloss', sa.String(length=60), nullable=True),
     sa.Column('pos', sa.String(length=20), nullable=True),
     sa.Column('transl', sa.String(length=60), nullable=True),
+    sa.Column('position', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['phrase_id'], ['phrases.phrase_id'], ),
     sa.PrimaryKeyConstraint('word_id')
     )
@@ -75,6 +68,5 @@ def downgrade():
     op.drop_table('words')
     op.drop_table('phrases')
     op.drop_table('paragraphs')
-    op.drop_table('users')
     op.drop_table('texts')
     # ### end Alembic commands ###

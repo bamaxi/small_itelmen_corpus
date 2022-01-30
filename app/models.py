@@ -92,7 +92,7 @@ class Word(db.Model):
     gloss = db.Column(db.String(60))
     pos = db.Column(db.String(20))
     transl = db.Column(db.String(60))
-    order = db.Column(db.Integer)
+    position = db.Column(db.Integer)
 
     # one-to-many к морфам
     morphs = relationship('Morph', order_by='Morph.morph_id', back_populates='word')
@@ -147,8 +147,8 @@ class Word(db.Model):
         return text_by_word
 
     def __repr__(self):
-        return '<Word {} (gloss={}, phrase_id={}, word_id={}, order={})>'.format(
-            self.text, self.gloss, self.phrase_id, self.word_id, self.order)
+        return '<Word {} (gloss={}, phrase_id={}, word_id={}, position={})>'.format(
+            self.text, self.gloss, self.phrase_id, self.word_id, self.position)
 
 
 class Morph(db.Model):

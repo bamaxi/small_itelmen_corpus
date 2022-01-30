@@ -8,6 +8,7 @@ class Config(object):
     # DATABASE = os.path.join(app.instance_path, 'app.sqlite')
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
     SQLALCHEMY_ECHO = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     LOGGING_FILE = os.environ.get('FLASK_LOGGING_FILE') or 'logs/base.log'
 
 
@@ -31,7 +32,7 @@ loggingConfig = {
         }
     },
     'root': {
-        'level': 'DEBUG',
+        'level': 'INFO',
         'handlers': ['wsgi', 'file']
     }
 }

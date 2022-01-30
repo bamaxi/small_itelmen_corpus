@@ -2,7 +2,7 @@ import logging
 
 from flask import render_template, redirect, url_for, request
 from flask.json import dumps, loads
-from sqlalchemy.orm import sessionmaker, scoped_session, aliased
+from sqlalchemy.orm import aliased
 from sqlalchemy import bindparam
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, FormField, FieldList, ValidationError
@@ -66,10 +66,10 @@ def do_search(forms_list):
     for i, form in enumerate(forms_):
         cur_table = word_aliases[i]
         # make sure word forms are a part of a single phrase
-        #   and that they are in the correct order
+        #   and that they are in the correct position
         if i != 0:
             q = q.filter(cur_table.phrase_id == word_aliases[0].phrase_id,
-                         cur_table.order == word_aliases[i - 1].order + 1)
+                         cur_table.position == word_aliases[i - 1].position + 1)
         # only leave valued AND SUPPORTED fields
         form = {map_[field]: val for field, val in form.items()
                 if (val != '' and field not in UNSUPPORTED_FIELDS)}
@@ -92,7 +92,7 @@ def do_search(forms_list):
     if count == 0:
         return 0, 0, None
 
-    # save order of found forms
+    # save position of found forms
     texts = []
     for result in results:
         # TODO: This code and templates/search/results.html
@@ -100,8 +100,8 @@ def do_search(forms_list):
         #   is it desirable?
         if isinstance(result, tuple):
             result = result[0]
-        highlight = [(result.order,
-                      result.order + total_forms_in_query - 1)]
+        highlight = [(result.position,
+                      result.position + total_forms_in_query - 1)]
         texts.append(result.get_text_by_word(highlight))
 
     for candidate_text_dict in texts:

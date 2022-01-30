@@ -28,13 +28,13 @@ def phrases_to_dicts(phrases):
             # tag <word> doesn't have a nested <morphemes>
             continue
 
-        # find a word and add it with its order if it's found
+        # find a word and add it with its position if it's found
         #     punctuation is omitted, because its type is (should be) `punct`
         word_text = word.find('item', type='txt').string
         # word_dict['to_words']['text'] = word.find('item', type='txt').string
         if word_text:
             word_dict['to_words']['text'] = word_text
-            word_dict['to_words']['order'] = order
+            word_dict['to_words']['position'] = order
             order += 1
         # try to get a translation and part of speech.
         try:

@@ -17,11 +17,12 @@ def add_data(file):
     count_total = len(list(data.keys()))
 
     # TODO: bad practice? should be external to func call?
-    engine = db.session.get_bind()
-    session_factory = sessionmaker(bind=engine)
-    Session = scoped_session(session_factory)
+    # engine = db.session.get_bind()
+    # session_factory = sessionmaker(bind=engine)
+    # Session = scoped_session(session_factory)
 
-    session = Session()
+    session = db.session
+    # session = Session()
 
     for title, actual_paragraphs in data.items():
         if Text.query.filter(Text.title == title).first() is not None:
@@ -66,7 +67,7 @@ def add_data(file):
         session.add(new_text)
 
     session.commit()
-    Session.remove()
+    # Session.remove()
 
     count_unique = len(unique_in_file)
     return count_unique, count_total, unique_in_file
