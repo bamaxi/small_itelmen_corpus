@@ -1,4 +1,8 @@
 {% extends "layout.html" %}
+{% block meta %}
+   <meta name="keywords" content="Лингвистика, корпус, ительменский, ительменский язык">
+{% endblock %}
+
 {% block title %}Главная{% endblock %}
 {% block head %}
   {{ super() }}
@@ -7,10 +11,21 @@
   </style>
 {% endblock %}
 {% block app_content %}
-  <h1>"Корпус" ительменского языка</h1>
+  <h1>Корпус ительменского языка</h1>
   <p class="important">Добро пожаловать на главную страницу корпуса.</p>
   <p>Вы можете выполнить поиск по корпусу:
     <a href="{{ url_for('search.search') }}">поиск</a></p>
   <p>Или можете добавить свой собственный текст:
     <a href="{{ url_for('upload.upload') }}">добавление текста</a></p>
+
+{% if texts %}
+<p>Сейчас в базе данных есть такие тексты:</p>
+  <ul>
+    {% for text in texts %}
+      <li>{{ text[0] }} {{ text[1] }}</li>
+    {% endfor %}
+  </ul>
+{% else %}
+<p><b>Сейчас в базе данных нет текстов</b></p>
+{% endif %}
 {% endblock %}

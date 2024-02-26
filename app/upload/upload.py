@@ -2,6 +2,7 @@ import logging
 import os
 
 from flask import redirect, url_for, render_template, request, flash
+from flask import current_app
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 from wtforms import SubmitField
@@ -9,9 +10,8 @@ from werkzeug.utils import secure_filename
 from markupsafe import Markup
 
 from . import bp
-from app.update_db.update import add_data
+from app.update_db.update import add_file_data
 
-UPLOAD_DIR = 'app/upload_data/'
 ALLOWED_EXTENSIONS = {'xml'}
 
 logger = logging.getLogger()
@@ -26,6 +26,8 @@ class UploadForm(FlaskForm):
 # TODO: ...это надо делать асинхронно, например, через *Celery* и потом узнавать Фласком успешность парсинга
 @bp.route('/upload', methods=['GET', 'POST'])
 def upload():
+    UPLOAD_DIR = os.path.abspath(os.path.join(current_app.config['BASEDIR'], 'app/upload_data/'))
+
     form = UploadForm()
 
     # если это запрос POST с валидированной формой, то...
@@ -49,11 +51,14 @@ def upload():
         f.save(path)
         logger.debug(f'file {path} was successfully uploaded')
 
-        count_unique, count_total, unique_texts_in_file = add_data(path)
+        result = add_file_data(path)
+        count_unique = result["count_unique"]
+        count_total = result["count_total"]
+        unique_in_file = result["unique_in_file"]
         logger.info(
               f'file {path} was parsed. '
               f'Unique (new) texts {count_unique}, total texts {count_total} '
-              f'unique texts are {unique_texts_in_file}')
+              f'unique texts are {unique_in_file}')
 
         message = f' Спасибо! Ваш файл успешно загружен. '\
                   f'Нам удалось обработать {count_total} текстов.\n'
@@ -67,7 +72,8 @@ def upload():
 
         return redirect(url_for('main.index'))
 
-    example_xml_path = 'app/static/example.xml'
+    example_xml_path = os.path.abspath(os.path.join(current_app.config['BASEDIR'],
+                                                    'app/static/example.xml'))
     with open(example_xml_path, 'r', encoding='utf-8') as f:
         example_xml = f.read()
 
