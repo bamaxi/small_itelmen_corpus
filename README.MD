@@ -1,11 +1,7 @@
 # Itelmen mini-corpus
 
-Сайт <https://bamaxi.pythonanywhere.com>  
-Логин:  admin  
-Пароль: maximillian
-
-Это попытка сделать корпус на *Flask*.
-Используются также:
+Это небольшой корпус на *Flask*.
+Используются:
 * базы данных (*SQLAlchemy*)
 * *BeautifulSoup* для парсинга входных (и исходных) размеченных текстов
 
