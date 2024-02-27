@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 VALUE_UNKNOWN = "0"
+SOURCE_UNKNOWN = "(источник неизвестен)"
 MORPH_SEP = "-"
 
 
@@ -189,14 +190,22 @@ def parse_xml(filename, take_first_text=False, take_first_paragraph=False):
             ).string
         except AttributeError as e:
             title = f"(Неизвестный текст - {i})"
-        res[title] = paragraphs
+        res[title] = {"par": paragraphs}
+
+        maybe_source = text.find('item', type="source")
+        if maybe_source:
+            source = maybe_source.string
+        else:
+            source = SOURCE_UNKNOWN
+        res[title]["source"] = source
 
         par_count += len(paragraphs)
 
     logger.info(f'take_first_text is {take_first_text}, total {par_count} paragraphs found')
 
     # print(list(res.keys()), len(texts))
-    for title, paragraphs in res.items():
-        res[title] = paragraphs_to_dict(paragraphs, take_first_paragraph=take_first_paragraph)
+    for title, data in res.items():
+        paragraphs = data["par"]
+        res[title]["par"] = paragraphs_to_dict(paragraphs, take_first_paragraph=take_first_paragraph)
 
     return res

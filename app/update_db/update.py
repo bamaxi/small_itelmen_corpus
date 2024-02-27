@@ -38,7 +38,8 @@ def add_file_data(filename: T.Union[str, Path]) -> Report:
 
     session = db.session
     # session = Session()
-    for title, actual_paragraphs in data.items():
+    for title, data in data.items():
+        actual_paragraphs = data["par"]
         # with session() as session:
         stmt = select(Text).where(Text.title == title)
         if session.execute(stmt).first() is not None:
@@ -46,7 +47,7 @@ def add_file_data(filename: T.Union[str, Path]) -> Report:
             continue
 
         unique_in_file.add(title)
-        new_text = Text(title=title)
+        new_text = Text(title=title, source=data["source"])
 
         # при создании я связывал объекты, так что, у более высокого в иерархии
         # есть список более низких

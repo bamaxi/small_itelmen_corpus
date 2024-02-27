@@ -1,4 +1,3 @@
-# https://flask-sqlalchemy.palletsprojects.com/en/2.x/quickstart/
 from sqlalchemy.orm import relationship
 from app import db
 
@@ -9,6 +8,7 @@ class Text(db.Model):
     text_id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(300), default='Неизвестный текст')
     author = db.Column(db.String(100), default='Автор неизвестен')
+    source = db.Column(db.String(500), nullable=True)
     # author_id = db.Column(db.Integer, db.ForeignKey('Author.author_id'),
     #                       nullable=False)
 

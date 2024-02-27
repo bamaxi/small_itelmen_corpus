@@ -19,12 +19,17 @@
     <a href="{{ url_for('upload.upload') }}">добавление текста</a></p>
 
 {% if texts %}
-<p>Сейчас в базе данных есть такие тексты:</p>
-  <ul>
+<p>Сейчас в базе данных есть такие тексты ({{ texts|length }}):</p>
+  <ol>
     {% for text in texts %}
-      <li>{{ text[0] }} {{ text[1] }}</li>
+      <li>
+        <i>{{ text[0] }}</i>
+        {% if text[1] %}
+         — {{ text[1] }}
+        {% endif %}
+      </li>
     {% endfor %}
-  </ul>
+  </ol>
 {% else %}
 <p><b>Сейчас в базе данных нет текстов</b></p>
 {% endif %}
