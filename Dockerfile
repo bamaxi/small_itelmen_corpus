@@ -20,4 +20,4 @@ EXPOSE ${PORT}
 # RUN python -m start_db
 RUN python -m start_db add --folder "texts/"
 RUN python -m pip freeze
-CMD flask run --host 0.0.0.0 -p PORT
+CMD flask run --host 0.0.0.0 -p 5000
